@@ -1,9 +1,11 @@
 using MediatR;
 using WebApi.Features.Books.Models;
 
-namespace WebApi.Features.Books.Queries.GetAllBooks;
+namespace WebApi.Features.Books.Queries;
 
-public class GetAllBooksHandler : IRequestHandler<GetAllBooksQuery, IEnumerable<BookDto>>
+public record GetBookByIdQuery(int Id) : IRequest<BookDto?>;
+
+public class GetBookByIdQueryHandler : IRequestHandler<GetBookByIdQuery, BookDto?>
 {
     private static readonly List<BookDto> _books = new()
     {
@@ -11,8 +13,9 @@ public class GetAllBooksHandler : IRequestHandler<GetAllBooksQuery, IEnumerable<
         new BookDto { Id = 2, Title = "Another Great Book", Description = "Another wonderful book", AuthorId = 2, CreatedAt = DateTime.UtcNow }
     };
 
-    public Task<IEnumerable<BookDto>> Handle(GetAllBooksQuery request, CancellationToken cancellationToken)
+    public Task<BookDto?> Handle(GetBookByIdQuery request, CancellationToken cancellationToken)
     {
-        return Task.FromResult(_books.AsEnumerable());
+        var book = _books.FirstOrDefault(b => b.Id == request.Id);
+        return Task.FromResult(book);
     }
 }

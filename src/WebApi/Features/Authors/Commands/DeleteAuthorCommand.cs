@@ -1,8 +1,10 @@
 using MediatR;
 
-namespace WebApi.Features.Authors.Commands.DeleteAuthor;
+namespace WebApi.Features.Authors.Commands;
 
-public class DeleteAuthorHandler : IRequestHandler<DeleteAuthorCommand>
+public record DeleteAuthorCommand(int Id) : IRequest;
+
+public class DeleteAuthorCommandHandler : IRequestHandler<DeleteAuthorCommand>
 {
     public Task<Unit> Handle(DeleteAuthorCommand request, CancellationToken cancellationToken)
     {

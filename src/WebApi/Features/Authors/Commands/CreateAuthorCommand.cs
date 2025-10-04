@@ -1,9 +1,17 @@
 using MediatR;
 using WebApi.Features.Authors.Models;
 
-namespace WebApi.Features.Authors.Commands.CreateAuthor;
+namespace WebApi.Features.Authors.Commands;
 
-public class CreateAuthorHandler : IRequestHandler<CreateAuthorCommand, AuthorDto>
+public record CreateAuthorCommand(CreateAuthorRequest Request) : IRequest<AuthorDto>;
+
+public class CreateAuthorRequest
+{
+    public string Name { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+}
+
+public class CreateAuthorCommandHandler : IRequestHandler<CreateAuthorCommand, AuthorDto>
 {
     private static readonly List<AuthorDto> _authors = new();
     private static int _nextId = 1;

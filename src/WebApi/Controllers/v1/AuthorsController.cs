@@ -1,11 +1,9 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using WebApi.Features.Authors.Commands.CreateAuthor;
-using WebApi.Features.Authors.Commands.UpdateAuthor;
-using WebApi.Features.Authors.Commands.DeleteAuthor;
-using WebApi.Features.Authors.Queries.GetAuthorById;
-using WebApi.Features.Authors.Queries.GetAllAuthors;
+using WebApi.Features.Authors.Commands;
+using WebApi.Features.Authors.Queries;
 using WebApi.Features.Authors.Models;
+using WebApi.Features.Books.Models;
 
 namespace WebApi.Controllers.v1;
 
@@ -59,5 +57,13 @@ public class AuthorsController(IMediator mediator) : ControllerBase
     {
         await mediator.Send(new DeleteAuthorCommand(id));
         return NoContent();
+    }
+
+    [HttpGet("{id:int}/books")]
+    [ProducesResponseType(typeof(IEnumerable<BookDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetBooks(int id)
+    {
+        var books = await mediator.Send(new GetBooksByAuthorQuery(id));
+        return Ok(books);
     }
 }

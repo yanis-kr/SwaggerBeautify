@@ -1,10 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using WebApi.Features.Books.Commands.CreateBook;
-using WebApi.Features.Books.Commands.UpdateBook;
-using WebApi.Features.Books.Commands.DeleteBook;
-using WebApi.Features.Books.Queries.GetAllBooks;
-using WebApi.Features.Books.Queries.GetBooksByAuthor;
+using WebApi.Features.Books.Commands;
+using WebApi.Features.Books.Queries;
 using WebApi.Features.Books.Models;
 
 namespace WebApi.Controllers.v1;

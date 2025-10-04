@@ -1,9 +1,11 @@
 using MediatR;
 using WebApi.Features.Books.Models;
 
-namespace WebApi.Features.Books.Queries.GetBooksByAuthor;
+namespace WebApi.Features.Authors.Queries;
 
-public class GetBooksByAuthorHandler : IRequestHandler<GetBooksByAuthorQuery, IEnumerable<BookDto>>
+public record GetBooksByAuthorQuery(int AuthorId) : IRequest<IEnumerable<BookDto>>;
+
+public class GetBooksByAuthorQueryHandler : IRequestHandler<GetBooksByAuthorQuery, IEnumerable<BookDto>>
 {
     private static readonly List<BookDto> _books = new()
     {

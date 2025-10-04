@@ -1,9 +1,18 @@
 using MediatR;
 using WebApi.Features.Books.Models;
 
-namespace WebApi.Features.Books.Commands.CreateBook;
+namespace WebApi.Features.Books.Commands;
 
-public class CreateBookHandler : IRequestHandler<CreateBookCommand, BookDto>
+public record CreateBookCommand(CreateBookRequest Request) : IRequest<BookDto>;
+
+public class CreateBookRequest
+{
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public int AuthorId { get; set; }
+}
+
+public class CreateBookCommandHandler : IRequestHandler<CreateBookCommand, BookDto>
 {
     private static readonly List<BookDto> _books = new();
     private static int _nextId = 1;

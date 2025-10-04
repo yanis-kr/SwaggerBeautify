@@ -1,8 +1,10 @@
 using MediatR;
 
-namespace WebApi.Features.Books.Commands.DeleteBook;
+namespace WebApi.Features.Books.Commands;
 
-public class DeleteBookHandler : IRequestHandler<DeleteBookCommand>
+public record DeleteBookCommand(int Id) : IRequest;
+
+public class DeleteBookCommandHandler : IRequestHandler<DeleteBookCommand>
 {
     public Task<Unit> Handle(DeleteBookCommand request, CancellationToken cancellationToken)
     {
