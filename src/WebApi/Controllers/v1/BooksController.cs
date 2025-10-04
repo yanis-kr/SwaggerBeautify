@@ -1,8 +1,11 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using WebApi.Features.Books.Commands;
-using WebApi.Features.Books.Queries;
-using WebApi.Models.Books;
+using WebApi.Features.Books.Commands.CreateBook;
+using WebApi.Features.Books.Commands.UpdateBook;
+using WebApi.Features.Books.Commands.DeleteBook;
+using WebApi.Features.Books.Queries.GetAllBooks;
+using WebApi.Features.Books.Queries.GetBooksByAuthor;
+using WebApi.Features.Books.Models;
 
 namespace WebApi.Controllers.v1;
 
@@ -12,7 +15,7 @@ namespace WebApi.Controllers.v1;
 public class BooksController(IMediator mediator) : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<Book>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IEnumerable<BookDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll()
     {
         var books = await mediator.Send(new GetAllBooksQuery());
@@ -20,15 +23,15 @@ public class BooksController(IMediator mediator) : ControllerBase
     }
 
     [HttpGet("{authorId:int}")]
-    [ProducesResponseType(typeof(IEnumerable<Book>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IEnumerable<BookDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetByAuthorId(int authorId)
     {
-        var books = await mediator.Send(new GetBooksByAuthorIdQuery(authorId));
+        var books = await mediator.Send(new GetBooksByAuthorQuery(authorId));
         return Ok(books);
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(Book), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(BookDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Post([FromBody] CreateBookRequest request)
     {

@@ -1,12 +1,13 @@
+INSTRUCTIONS.md
 🎯 Goal
 
-Create a .NET 8 Web API project following modern professional standards with:
+Create a .NET 8 Web API project with:
 
 Authors and Books controllers (CRUD)
 
-MediatR for application flow
+MediatR for request/response handling
 
-Correlation ID propagation
+Correlation ID middleware
 
 API Versioning (v1)
 
@@ -18,227 +19,143 @@ Minimal Program.cs
 
 🧱 Project Structure
 /src
-| │ WebApi/
-| ├── Controllers/
-| │   └── v1/
-| │       ├── AuthorsController.cs
-| │       └── BooksController.cs
-| │
-| ├── Features/
-| │   ├── Authors/
-| │   │   ├── Models/
-| │   │   │   └── AuthorDto.cs
-| │   │   ├── Commands/
-| │   │   │   ├── CreateAuthor/
-| │   │   │   │   ├── CreateAuthorCommand.cs
-| │   │   │   │   ├── CreateAuthorHandler.cs
-| │   │   │   │   └── CreateAuthorValidator.cs   // optional FluentValidation
-| │   │   │   ├── UpdateAuthor/
-| │   │   │   │   ├── UpdateAuthorCommand.cs
-| │   │   │   │   └── UpdateAuthorHandler.cs
-| │   │   │   └── DeleteAuthor/
-| │   │   │       ├── DeleteAuthorCommand.cs
-| │   │   │       └── DeleteAuthorHandler.cs
-| │   │   └── Queries/
-| │   │       ├── GetAuthorById/
-| │   │       │   ├── GetAuthorByIdQuery.cs
-| │   │       │   └── GetAuthorByIdHandler.cs
-| │   │       └── GetAllAuthors/
-| │   │           ├── GetAllAuthorsQuery.cs
-| │   │           └── GetAllAuthorsHandler.cs
-| │   │
-| │   └── Books/
-| │       ├── Models/
-| │       │   └── BookDto.cs
-| │       ├── Commands/
-| │       │   ├── CreateBook/
-| │       │   │   ├── CreateBookCommand.cs
-| │       │   │   └── CreateBookHandler.cs
-| │       │   ├── UpdateBook/
-| │       │   │   ├── UpdateBookCommand.cs
-| │       │   │   └── UpdateBookHandler.cs
-| │       │   └── DeleteBook/
-| │       │       ├── DeleteBookCommand.cs
-| │       │       └── DeleteBookHandler.cs
-| │       └── Queries/
-| │           ├── GetBookByAuthor/
-| │           │   ├── GetBookByAuthorQuery.cs
-| │           │   └── GetBookByAuthorHandler.cs
-| │           └── GetAllBooks/
-| │               ├── GetAllBooksQuery.cs
-| │               └── GetAllBooksHandler.cs
-| │
-| ├── Middleware/
-| │   └── CorrelationIdMiddleware.cs
-| │
-| ├── StartupExtensions/
-| │   ├── ServiceCollectionExtensions.cs
-| │   ├── ApplicationBuilderExtensions.cs
-| │   ├── SwaggerExtensions.cs
-| │   ├── MediatRExtensions.cs
-| │   ├── ApiVersioningExtensions.cs
-| │   └── ValidationExtensions.cs
-| │
-| └── Program.cs
+└── WebApi/
+    ├── Controllers/
+    │   └── v1/
+    │       ├── AuthorsController.cs
+    │       └── BooksController.cs
+    │
+    ├── Features/
+    │   ├── Authors/
+    │   │   ├── Models/
+    │   │   │   └── AuthorDto.cs
+    │   │   ├── Commands/
+    │   │   │   ├── CreateAuthorCommand.cs
+    │   │   │   ├── UpdateAuthorCommand.cs
+    │   │   │   └── DeleteAuthorCommand.cs
+    │   │   └── Queries/
+    │   │       ├── GetAuthorByIdQuery.cs
+    │   │       ├── GetAllAuthorsQuery.cs
+    │   │       └── GetBooksByAuthorQuery.cs     // Uses Books feature via MediatR
+    │
+    │   └── Books/
+    │       ├── Models/
+    │       │   └── BookDto.cs
+    │       ├── Commands/
+    │       │   ├── CreateBookCommand.cs
+    │       │   ├── UpdateBookCommand.cs
+    │       │   └── DeleteBookCommand.cs
+    │       └── Queries/
+    │           ├── GetBookByIdQuery.cs
+    │           ├── GetAllBooksQuery.cs
+    │           └── GetBooksByAuthorQuery.cs
+    │
+    ├── Middleware/
+    │   └── CorrelationIdMiddleware.cs
+    │
+    ├── StartupExtensions/
+    │   ├── ServiceCollectionExtensions.cs
+    │   ├── ApplicationBuilderExtensions.cs
+    │   ├── SwaggerExtensions.cs
+    │   ├── MediatRExtensions.cs
+    │   ├── ApiVersioningExtensions.cs
+    │   └── ValidationExtensions.cs
+    │
+    ├── appsettings.json
+    └── Program.cs
+
 └── WebApi.sln
 
 ⚙️ Requirements
-
 1. Controllers
-   AuthorsController
 
-Routes:
+AuthorsController
 
-GET /api/v1/authors/{id:int}
-
-POST /api/v1/authors
-
-PUT /api/v1/authors/{id:int}
-
+GET    /api/v1/authors/{id:int}
+POST   /api/v1/authors
+PUT    /api/v1/authors/{id:int}
 DELETE /api/v1/authors/{id:int}
+GET    /api/v1/authors/{id:int}/books
+
 
 BooksController
 
-Routes:
-
-GET /api/v1/books
-
-GET /api/v1/books/{authorId:int}
-
-POST /api/v1/books
-
-PUT /api/v1/books/{id:int}
-
+GET    /api/v1/books
+GET    /api/v1/books/{authorId:int}
+POST   /api/v1/books
+PUT    /api/v1/books/{id:int}
 DELETE /api/v1/books/{id:int}
 
-Notes
 
-Each action should use IMediator.Send() to dispatch commands or queries.
+Controllers must:
 
-Controllers stay thin: no business logic.
+Use IMediator.Send() for commands/queries
 
-Apply [ApiVersion("1.0")] and [Route("api/v{version:apiVersion}/[controller]")].
+Stay lean — no business logic
 
-Example:
-
-[ApiController]
-[ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/[controller]")]
-public class AuthorsController(IMediator mediator) : ControllerBase
-{
-[HttpGet("{id:int}")]
-public async Task<IActionResult> Get(int id) =>
-Ok(await mediator.Send(new GetAuthorByIdQuery(id)));
-
-    [HttpPost]
-    public async Task<IActionResult> Post([FromBody] CreateAuthorRequest request)
-    {
-        var author = await mediator.Send(new CreateAuthorCommand(request));
-        return CreatedAtAction(nameof(Get), new { id = author.Id }, author);
-    }
-
-    [HttpPut("{id:int}")]
-    public async Task<IActionResult> Put(int id, [FromBody] UpdateAuthorRequest request)
-    {
-        await mediator.Send(new UpdateAuthorCommand(id, request));
-        return NoContent();
-    }
-
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        await mediator.Send(new DeleteAuthorCommand(id));
-        return NoContent();
-    }
-
-}
+Use [ApiVersion("1.0")] and [Route("api/v{version:apiVersion}/[controller]")]
 
 2. Correlation ID Middleware
 
-Implement a custom middleware that:
+Reads Correlation-Id from incoming requests
 
-Reads Correlation-Id header from the incoming request.
+Generates one if missing
 
-If missing, generates a new GUID.
+Adds it to responses and HttpContext.Items
 
-Adds the same header to the response.
+Register early via UseCorrelationId()
 
-Makes correlation ID available via HttpContext.Items.
+3. Swagger
 
-Register early in the pipeline (UseCorrelationId()).
+Use Swashbuckle.AspNetCore
 
-3. Swagger Configuration
+Enable versioned docs: /swagger/v1/swagger.yaml and /swagger/v1/swagger.json
 
-Use Swashbuckle.AspNetCore.
+Include request/response examples
 
-Enable versioned docs (/swagger/v1/swagger.yaml and /swagger/v1/swagger.json).
+Configure in StartupExtensions/SwaggerExtensions.cs
 
-Show request/response examples.
-
-Include [ProducesResponseType] annotations.
-
-Enable YAML output with:
-
-c.SerializeAsV2 = false;
-c.IncludeYaml();
-
-Move all Swagger setup into StartupExtensions/SwaggerExtensions.cs.
+Use YAML output
 
 4. MediatR
 
-Add MediatR via NuGet (MediatR.Extensions.Microsoft.DependencyInjection).
+Add via NuGet MediatR.Extensions.Microsoft.DependencyInjection
 
-Register handlers with AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
+Register with
 
-Keep each command/query in Features folders.
+services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
 
-Example command:
 
-public record CreateAuthorCommand(CreateAuthorRequest Request) : IRequest<Author>;
+Merge request and handler in the same file (e.g. CreateAuthorCommand.cs)
 
 5. API Versioning
 
-Add Asp.Versioning.Http package.
+Use Asp.Versioning.Http
 
-Register in ApiVersioningExtensions.cs:
+Register in ApiVersioningExtensions.cs with default v1.0 and URL substitution
 
-services.AddApiVersioning(options =>
-{
-options.DefaultApiVersion = new ApiVersion(1, 0);
-options.AssumeDefaultVersionWhenUnspecified = true;
-options.ReportApiVersions = true;
-});
-services.AddVersionedApiExplorer(options =>
-{
-options.GroupNameFormat = "'v'VVV";
-options.SubstituteApiVersionInUrl = true;
-});
+6. Startup Extensions and Program.cs
 
-6. Startup Extension Registration
-   Program.cs
-   var builder = WebApplication.CreateBuilder(args);
+Program.cs
+
+var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
-.AddAppServices()
-.AddMediatRSetup()
-.AddApiVersioningSetup()
-.AddSwaggerSetup();
+    .AddAppServices()
+    .AddMediatRSetup()
+    .AddApiVersioningSetup()
+    .AddSwaggerSetup();
 
 var app = builder.Build();
 
 app.UseAppPipeline()
-.UseCorrelationId()
-.UseSwaggerSetup();
+   .UseCorrelationId()
+   .UseSwaggerSetup();
 
 app.Run();
 
-StartupExtensions/ServiceCollectionExtensions.cs
 
-Register controllers, API behavior, etc.
-
-StartupExtensions/ApplicationBuilderExtensions.cs
-
-Configure middleware order (exception handler, correlation ID, routing, etc.)
+StartupExtensions should configure controllers, pipeline, Swagger, versioning, and MediatR cleanly.
 
 7. Expected Behavior
 
@@ -246,7 +163,8 @@ After running:
 
 dotnet run
 
-✅ Endpoints:
+
+✅ Available endpoints:
 
 /api/v1/authors
 
@@ -256,30 +174,30 @@ Swagger: https://localhost:5001/swagger/v1/swagger.yaml
 
 ✅ Behavior:
 
-Each response includes Correlation-Id.
+Each response includes Correlation-Id
 
-Swagger UI displays versioned endpoints.
+Swagger UI displays versioned endpoints
 
-Controllers remain under 20 lines, using MediatR for business flow.
+Controllers use MediatR, staying under 20 lines each
 
 8. Optional Enhancements
 
-Add FluentValidation for request DTOs.
+Add FluentValidation for request DTOs
 
-Add global exception handling middleware returning ProblemDetails.
+Add global exception handling (ProblemDetails)
 
-Add Serilog request logging with correlation ID enrichment.
+Add Serilog request logging with correlation ID enrichment
 
-✅ Deliverables for Claude/Cursor
+✅ Deliverables
 
 Claude or Cursor should generate:
 
-Full project scaffold following this structure.
+Full project scaffold matching this structure
 
-Controllers using MediatR.
+Controllers wired to MediatR
 
-Versioned routing with Swagger YAML.
+Correlation ID middleware
 
-Middleware and StartupExtensions setup.
+API versioning and Swagger YAML setup
 
-Clean, minimal Program.cs.
+Clean, minimal Program.cs

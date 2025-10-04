@@ -1,8 +1,11 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using WebApi.Features.Authors.Commands;
-using WebApi.Features.Authors.Queries;
-using WebApi.Models.Authors;
+using WebApi.Features.Authors.Commands.CreateAuthor;
+using WebApi.Features.Authors.Commands.UpdateAuthor;
+using WebApi.Features.Authors.Commands.DeleteAuthor;
+using WebApi.Features.Authors.Queries.GetAuthorById;
+using WebApi.Features.Authors.Queries.GetAllAuthors;
+using WebApi.Features.Authors.Models;
 
 namespace WebApi.Controllers.v1;
 
@@ -12,7 +15,7 @@ namespace WebApi.Controllers.v1;
 public class AuthorsController(IMediator mediator) : ControllerBase
 {
     [HttpGet("{id:int}")]
-    [ProducesResponseType(typeof(Author), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(AuthorDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get(int id)
     {
@@ -24,7 +27,7 @@ public class AuthorsController(IMediator mediator) : ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<Author>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IEnumerable<AuthorDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll()
     {
         var authors = await mediator.Send(new GetAllAuthorsQuery());
@@ -32,7 +35,7 @@ public class AuthorsController(IMediator mediator) : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(Author), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(AuthorDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Post([FromBody] CreateAuthorRequest request)
     {

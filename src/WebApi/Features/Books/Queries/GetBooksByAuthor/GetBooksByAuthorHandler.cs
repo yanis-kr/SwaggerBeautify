@@ -1,0 +1,19 @@
+using MediatR;
+using WebApi.Features.Books.Models;
+
+namespace WebApi.Features.Books.Queries.GetBooksByAuthor;
+
+public class GetBooksByAuthorHandler : IRequestHandler<GetBooksByAuthorQuery, IEnumerable<BookDto>>
+{
+    private static readonly List<BookDto> _books = new()
+    {
+        new BookDto { Id = 1, Title = "The Great Book", Description = "A wonderful book", AuthorId = 1, CreatedAt = DateTime.UtcNow },
+        new BookDto { Id = 2, Title = "Another Great Book", Description = "Another wonderful book", AuthorId = 2, CreatedAt = DateTime.UtcNow }
+    };
+
+    public Task<IEnumerable<BookDto>> Handle(GetBooksByAuthorQuery request, CancellationToken cancellationToken)
+    {
+        var books = _books.Where(b => b.AuthorId == request.AuthorId);
+        return Task.FromResult(books);
+    }
+}
