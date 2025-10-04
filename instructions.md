@@ -18,41 +18,68 @@ Minimal Program.cs
 
 🧱 Project Structure
 /src
-├── WebApi
-│ ├── Controllers/
-│ │ ├── v1/
-│ │ │ ├── AuthorsController.cs
-│ │ │ └── BooksController.cs
-│ ├── Features/
-│ │ ├── Authors/
-│ │ │ ├── Commands/
-│ │ │ │ ├── CreateAuthorCommand.cs
-│ │ │ │ ├── UpdateAuthorCommand.cs
-│ │ │ │ └── DeleteAuthorCommand.cs
-│ │ │ └── Queries/
-│ │ │ ├── GetAuthorByIdQuery.cs
-│ │ │ └── GetAllAuthorsQuery.cs
-│ │ └── Books/
-│ │ ├── Commands/
-│ │ ├── Queries/
-│ ├── Models/
-│ │ ├── Authors/
-│ │ │ ├── Author.cs
-│ │ │ ├── CreateAuthorRequest.cs
-│ │ │ └── UpdateAuthorRequest.cs
-│ │ └── Books/
-│ │ ├── Book.cs
-│ │ ├── CreateBookRequest.cs
-│ │ └── UpdateBookRequest.cs
-│ ├── Middleware/
-│ │ └── CorrelationIdMiddleware.cs
-│ ├── StartupExtensions/
-│ │ ├── ServiceCollectionExtensions.cs
-│ │ ├── ApplicationBuilderExtensions.cs
-│ │ ├── SwaggerExtensions.cs
-│ │ ├── MediatRExtensions.cs
-│ │ └── ApiVersioningExtensions.cs
-│ └── Program.cs
+| │ WebApi/
+| ├── Controllers/
+| │   └── v1/
+| │       ├── AuthorsController.cs
+| │       └── BooksController.cs
+| │
+| ├── Features/
+| │   ├── Authors/
+| │   │   ├── Models/
+| │   │   │   └── AuthorDto.cs
+| │   │   ├── Commands/
+| │   │   │   ├── CreateAuthor/
+| │   │   │   │   ├── CreateAuthorCommand.cs
+| │   │   │   │   ├── CreateAuthorHandler.cs
+| │   │   │   │   └── CreateAuthorValidator.cs   // optional FluentValidation
+| │   │   │   ├── UpdateAuthor/
+| │   │   │   │   ├── UpdateAuthorCommand.cs
+| │   │   │   │   └── UpdateAuthorHandler.cs
+| │   │   │   └── DeleteAuthor/
+| │   │   │       ├── DeleteAuthorCommand.cs
+| │   │   │       └── DeleteAuthorHandler.cs
+| │   │   └── Queries/
+| │   │       ├── GetAuthorById/
+| │   │       │   ├── GetAuthorByIdQuery.cs
+| │   │       │   └── GetAuthorByIdHandler.cs
+| │   │       └── GetAllAuthors/
+| │   │           ├── GetAllAuthorsQuery.cs
+| │   │           └── GetAllAuthorsHandler.cs
+| │   │
+| │   └── Books/
+| │       ├── Models/
+| │       │   └── BookDto.cs
+| │       ├── Commands/
+| │       │   ├── CreateBook/
+| │       │   │   ├── CreateBookCommand.cs
+| │       │   │   └── CreateBookHandler.cs
+| │       │   ├── UpdateBook/
+| │       │   │   ├── UpdateBookCommand.cs
+| │       │   │   └── UpdateBookHandler.cs
+| │       │   └── DeleteBook/
+| │       │       ├── DeleteBookCommand.cs
+| │       │       └── DeleteBookHandler.cs
+| │       └── Queries/
+| │           ├── GetBookByAuthor/
+| │           │   ├── GetBookByAuthorQuery.cs
+| │           │   └── GetBookByAuthorHandler.cs
+| │           └── GetAllBooks/
+| │               ├── GetAllBooksQuery.cs
+| │               └── GetAllBooksHandler.cs
+| │
+| ├── Middleware/
+| │   └── CorrelationIdMiddleware.cs
+| │
+| ├── StartupExtensions/
+| │   ├── ServiceCollectionExtensions.cs
+| │   ├── ApplicationBuilderExtensions.cs
+| │   ├── SwaggerExtensions.cs
+| │   ├── MediatRExtensions.cs
+| │   ├── ApiVersioningExtensions.cs
+| │   └── ValidationExtensions.cs
+| │
+| └── Program.cs
 └── WebApi.sln
 
 ⚙️ Requirements
