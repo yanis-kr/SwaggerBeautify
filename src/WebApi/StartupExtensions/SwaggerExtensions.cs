@@ -41,16 +41,19 @@ public static class SwaggerExtensions
 
     public static IApplicationBuilder UseSwaggerSetup(this IApplicationBuilder app)
     {
-        //app.UseSwagger(options =>
-        //{
-        //    options.RouteTemplate = "/swagger/{documentName}/swagger.{json|yaml}";
-        //});
-
         app.UseSwagger();
-        app.UseSwaggerUI(options =>
+        app.UseSwaggerUI(c =>
         {
-            options.SwaggerEndpoint("/swagger/v1/swagger.yaml", "My Custom API V1 (YAML)");
-            options.RoutePrefix = "swagger";
+            var provider = app.ApplicationServices.GetRequiredService<IApiVersionDescriptionProvider>();
+
+            foreach (var description in provider.ApiVersionDescriptions.Reverse())
+            {
+                c.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.yaml",
+                    $"WebApi {description.GroupName.ToUpperInvariant()}");
+            }
+
+            //options.SwaggerEndpoint("/swagger/v1/swagger.yaml", "My Custom API V1 (YAML)");
+            c.RoutePrefix = "swagger";
         });
 
         return app;
