@@ -41,35 +41,17 @@ public static class SwaggerExtensions
 
     public static IApplicationBuilder UseSwaggerSetup(this IApplicationBuilder app)
     {
-        // Modify the UseSwagger() middleware to serve the YAML file at a custom path
-        app.UseSwagger(options =>
-        {
-            // Change the route template to serve both JSON and YAML.
-            // Navigate to /api-docs/v1/swagger.yaml or /api-docs/v1/swagger.json
-            options.RouteTemplate = "/swagger/{documentName}/swagger.{json|yaml}";
-        });
+        //app.UseSwagger(options =>
+        //{
+        //    options.RouteTemplate = "/swagger/{documentName}/swagger.{json|yaml}";
+        //});
 
-        // Configure UseSwaggerUI() to point to the new YAML endpoint
+        app.UseSwagger();
         app.UseSwaggerUI(options =>
         {
-            // Specify the new path to the YAML document
             options.SwaggerEndpoint("/swagger/v1/swagger.yaml", "My Custom API V1 (YAML)");
-
-            // The URL for the Swagger UI itself can also be changed
-            //options.RoutePrefix = "swagger";
+            options.RoutePrefix = "swagger";
         });
-        //app.UseSwaggerUI(c =>
-        //{
-        //    var provider = app.ApplicationServices.GetRequiredService<IApiVersionDescriptionProvider>();
-
-        //    foreach (var description in provider.ApiVersionDescriptions.Reverse())
-        //    {
-        //        c.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", 
-        //            $"WebApi {description.GroupName.ToUpperInvariant()}");
-        //    }
-
-        //    c.RoutePrefix = string.Empty; // Set Swagger UI at the app's root
-        //});
 
         return app;
     }
