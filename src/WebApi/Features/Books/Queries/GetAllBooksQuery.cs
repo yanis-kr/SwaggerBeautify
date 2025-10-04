@@ -5,3 +5,4 @@ namespace WebApi.Features.Books.Queries;
 
 public record GetAllBooksQuery : IRequest<IEnumerable<Book>>;
 
+
