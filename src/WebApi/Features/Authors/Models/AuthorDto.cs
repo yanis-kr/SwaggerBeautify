@@ -11,18 +11,22 @@ public class AuthorDto
     /// The unique identifier for the author
     /// </summary>
     /// <example>1</example>
+    [Range(1, int.MaxValue, ErrorMessage = "Author ID must be a positive integer")]
     public int Id { get; set; }
     
     /// <summary>
     /// The full name of the author
     /// </summary>
     /// <example>John Doe</example>
+    [MaxLength(100, ErrorMessage = "Author name cannot exceed 100 characters")]
     public string Name { get; set; } = string.Empty;
     
     /// <summary>
     /// The email address of the author
     /// </summary>
     /// <example>john.doe@example.com</example>
+    [MaxLength(255, ErrorMessage = "Email address cannot exceed 255 characters")]
+    [EmailAddress(ErrorMessage = "Please provide a valid email address")]
     public string Email { get; set; } = string.Empty;
     
     /// <summary>
