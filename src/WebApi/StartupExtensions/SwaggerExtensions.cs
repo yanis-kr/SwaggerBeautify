@@ -10,7 +10,6 @@ public static class SwaggerExtensions
     {
         services.AddSwaggerGen(c =>
         {
-            
             var provider = services.BuildServiceProvider().GetRequiredService<IApiVersionDescriptionProvider>();
             
             foreach (var description in provider.ApiVersionDescriptions)
