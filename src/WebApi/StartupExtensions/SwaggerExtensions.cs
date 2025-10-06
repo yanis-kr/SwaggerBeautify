@@ -30,6 +30,9 @@ public static class SwaggerExtensions
             // Add schema filter to process SwaggerProps attributes
             c.SchemaFilter<SwaggerPropsSchemaFilter>();
 
+            // Add schema filter to remove additionalProperties
+            c.SchemaFilter<RemoveAdditionalPropertiesFilter>();
+
             // Add operation filter to restrict media types to application/json only
             c.OperationFilter<JsonOnlyOperationFilter>();
 
@@ -44,13 +47,15 @@ public static class SwaggerExtensions
                 c.IncludeXmlComments(xmlPath);
             }
 
-            // Configure to only show application/json media types
+            // Configure to only show application/json media types and prevent additionalProperties
             c.MapType<string>(() => new OpenApiSchema { Type = "string" });
             c.MapType<int>(() => new OpenApiSchema { Type = "integer", Format = "int32" });
             c.MapType<long>(() => new OpenApiSchema { Type = "integer", Format = "int64" });
             c.MapType<bool>(() => new OpenApiSchema { Type = "boolean" });
             c.MapType<DateTime>(() => new OpenApiSchema { Type = "string", Format = "date-time" });
             c.MapType<Guid>(() => new OpenApiSchema { Type = "string", Format = "uuid" });
+
+            // Note: additionalProperties removal is handled by the filters above
         });
 
         return services;
@@ -352,6 +357,19 @@ public class JsonOnlyOperationFilter : IOperationFilter
                     }
                 }
             }
+        }
+    }
+}
+
+public class RemoveAdditionalPropertiesFilter : ISchemaFilter
+{
+    public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+    {
+        // Simple solution: if schema type is object, allow additional properties but set them to null
+        if (schema.Type == "object")
+        {
+            schema.AdditionalPropertiesAllowed = true;
+            schema.AdditionalProperties = null;
         }
     }
 }
