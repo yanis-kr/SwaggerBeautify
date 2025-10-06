@@ -26,6 +26,9 @@ public static class SwaggerExtensions
             // Add operation filter to include Correlation-Id header in all operations
             c.OperationFilter<CorrelationIdOperationFilter>();
 
+            // Add document filter to include servers configuration
+            c.DocumentFilter<ServersDocumentFilter>();
+
             // Include XML comments if available
             var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
             var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
@@ -96,5 +99,25 @@ public class CorrelationIdOperationFilter : IOperationFilter
                 }
             };
         }
+    }
+}
+
+public class ServersDocumentFilter : IDocumentFilter
+{
+    public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
+    {
+        swaggerDoc.Servers = new List<OpenApiServer>
+        {
+            new OpenApiServer
+            {
+                Url = "https://dev.local",
+                Description = "Development Environment"
+            },
+            new OpenApiServer
+            {
+                Url = "https://qa.local",
+                Description = "QA Environment"
+            }
+        };
     }
 }
