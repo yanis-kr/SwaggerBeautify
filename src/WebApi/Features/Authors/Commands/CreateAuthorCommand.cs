@@ -5,9 +5,21 @@ namespace WebApi.Features.Authors.Commands;
 
 public record CreateAuthorCommand(CreateAuthorRequest Request) : IRequest<AuthorDto>;
 
+/// <summary>
+/// Request model for creating a new author
+/// </summary>
 public class CreateAuthorRequest
 {
+    /// <summary>
+    /// The full name of the author
+    /// </summary>
+    /// <example>John Doe</example>
     public string Name { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// The email address of the author
+    /// </summary>
+    /// <example>john.doe@example.com</example>
     public string Email { get; set; } = string.Empty;
 }
 

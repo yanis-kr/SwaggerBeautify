@@ -4,9 +4,21 @@ namespace WebApi.Features.Authors.Commands;
 
 public record UpdateAuthorCommand(int Id, UpdateAuthorRequest Request) : IRequest;
 
+/// <summary>
+/// Request model for updating an existing author
+/// </summary>
 public class UpdateAuthorRequest
 {
+    /// <summary>
+    /// The full name of the author
+    /// </summary>
+    /// <example>Jane Smith</example>
     public string Name { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// The email address of the author
+    /// </summary>
+    /// <example>jane.smith@example.com</example>
     public string Email { get; set; } = string.Empty;
 }
 

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using WebApi.Attributes;
 
 namespace WebApi.StartupExtensions;
 
@@ -28,6 +29,9 @@ public static class SwaggerExtensions
 
             // Add operation filter to set example values for Author ID parameters
             c.OperationFilter<AuthorIdExampleFilter>();
+
+            // Add schema filter to process Example attributes
+            c.SchemaFilter<ExampleSchemaFilter>();
 
             // Add document filter to include servers configuration
             c.DocumentFilter<ServersDocumentFilter>();
@@ -145,3 +149,55 @@ public class AuthorIdExampleFilter : IOperationFilter
         }
     }
 }
+
+public class ExampleSchemaFilter : ISchemaFilter
+{
+    public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+    {
+        // Check for Example attribute on the type
+        var exampleAttribute = context.Type.GetCustomAttributes(typeof(ExampleAttribute), false)
+            .FirstOrDefault() as ExampleAttribute;
+
+        if (exampleAttribute != null)
+        {
+            schema.Example = ConvertToOpenApiAny(exampleAttribute.Example);
+        }
+
+        // Check for Example attributes on properties
+        if (schema.Properties != null)
+        {
+            foreach (var property in context.Type.GetProperties())
+            {
+                var propExampleAttribute = property.GetCustomAttributes(typeof(ExampleAttribute), false)
+                    .FirstOrDefault() as ExampleAttribute;
+
+                if (propExampleAttribute != null && schema.Properties.ContainsKey(ToCamelCase(property.Name)))
+                {
+                    schema.Properties[ToCamelCase(property.Name)].Example = ConvertToOpenApiAny(propExampleAttribute.Example);
+                }
+            }
+        }
+    }
+
+    private static Microsoft.OpenApi.Any.IOpenApiAny ConvertToOpenApiAny(object value)
+    {
+        return value switch
+        {
+            string str => new Microsoft.OpenApi.Any.OpenApiString(str),
+            int integer => new Microsoft.OpenApi.Any.OpenApiInteger(integer),
+            long longValue => new Microsoft.OpenApi.Any.OpenApiLong(longValue),
+            double doubleValue => new Microsoft.OpenApi.Any.OpenApiDouble(doubleValue),
+            float floatValue => new Microsoft.OpenApi.Any.OpenApiFloat(floatValue),
+            bool boolValue => new Microsoft.OpenApi.Any.OpenApiBoolean(boolValue),
+            DateTime dateTime => new Microsoft.OpenApi.Any.OpenApiDateTime(dateTime),
+            _ => new Microsoft.OpenApi.Any.OpenApiString(value.ToString() ?? "")
+        };
+    }
+
+    private static string ToCamelCase(string input)
+    {
+        if (string.IsNullOrEmpty(input)) return input;
+        return char.ToLowerInvariant(input[0]) + input[1..];
+    }
+}
+
