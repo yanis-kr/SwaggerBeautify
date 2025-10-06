@@ -44,4 +44,10 @@ public class AuthorDto
     /// <example>2024-01-20T14:45:00Z</example>
     [SwaggerProps(Example = "2024-01-20T14:45:00Z", Format = "date-time")]
     public DateTime? UpdatedAt { get; set; }
+    
+    /// <summary>
+    /// Internal tracking field - hidden from API documentation
+    /// </summary>
+    [SwaggerProps(Hide = true)]
+    public string InternalTrackingId { get; set; } = Guid.NewGuid().ToString();
 }

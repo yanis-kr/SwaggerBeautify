@@ -160,21 +160,51 @@ public class SwaggerPropsSchemaFilter : ISchemaFilter
 
         if (swaggerPropsAttribute != null)
         {
-            ApplySwaggerProps(schema, swaggerPropsAttribute);
+            // Check if entire class should be hidden
+            if (swaggerPropsAttribute.Hide)
+            {
+                // Mark schema as empty to effectively hide it
+                schema.Properties?.Clear();
+                schema.Type = null;
+                schema.Description = "Hidden from API documentation";
+                return;
+            }
+            else
+            {
+                ApplySwaggerProps(schema, swaggerPropsAttribute);
+            }
         }
 
         // Check for SwaggerProps attributes on properties
         if (schema.Properties != null)
         {
+            var propertiesToRemove = new List<string>();
+
             foreach (var property in context.Type.GetProperties())
             {
                 var propSwaggerPropsAttribute = property.GetCustomAttributes(typeof(SwaggerPropsAttribute), false)
                     .FirstOrDefault() as SwaggerPropsAttribute;
 
-                if (propSwaggerPropsAttribute != null && schema.Properties.ContainsKey(ToCamelCase(property.Name)))
+                var camelCaseName = ToCamelCase(property.Name);
+
+                if (propSwaggerPropsAttribute != null)
                 {
-                    ApplySwaggerProps(schema.Properties[ToCamelCase(property.Name)], propSwaggerPropsAttribute);
+                    // Check if property should be hidden
+                    if (propSwaggerPropsAttribute.Hide)
+                    {
+                        propertiesToRemove.Add(camelCaseName);
+                    }
+                    else if (schema.Properties.ContainsKey(camelCaseName))
+                    {
+                        ApplySwaggerProps(schema.Properties[camelCaseName], propSwaggerPropsAttribute);
+                    }
                 }
+            }
+
+            // Remove hidden properties from schema
+            foreach (var propertyName in propertiesToRemove)
+            {
+                schema.Properties.Remove(propertyName);
             }
         }
 

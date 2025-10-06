@@ -69,6 +69,11 @@ public class SwaggerPropsAttribute : Attribute
     public string? Deprecated { get; set; }
 
     /// <summary>
+    /// Whether to hide this field from the OpenAPI specification
+    /// </summary>
+    public bool Hide { get; set; }
+
+    /// <summary>
     /// Constructor for basic example value
     /// </summary>
     public SwaggerPropsAttribute(object example)
