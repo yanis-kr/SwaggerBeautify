@@ -1,4 +1,5 @@
 using MediatR;
+using WebApi.Attributes;
 using WebApi.Features.Authors.Models;
 
 namespace WebApi.Features.Authors.Commands;
@@ -20,6 +21,7 @@ public class CreateAuthorRequest
     /// The email address of the author
     /// </summary>
     /// <example>john.doe@example.com</example>
+    [SwaggerProps(Example = "john.doe@example.com", Format = "email")]
     public string Email { get; set; } = string.Empty;
 }
 

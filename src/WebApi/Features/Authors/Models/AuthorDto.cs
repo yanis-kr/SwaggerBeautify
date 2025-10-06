@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using WebApi.Attributes;
 
 namespace WebApi.Features.Authors.Models;
 
@@ -25,6 +26,7 @@ public class AuthorDto
     /// The email address of the author
     /// </summary>
     /// <example>john.doe@example.com</example>
+    [SwaggerProps(Example = "john.doe@example.com", Format = "email")]
     [MaxLength(255, ErrorMessage = "Email address cannot exceed 255 characters")]
     [EmailAddress(ErrorMessage = "Please provide a valid email address")]
     public string Email { get; set; } = string.Empty;
@@ -33,11 +35,13 @@ public class AuthorDto
     /// The date and time when the author was created
     /// </summary>
     /// <example>2024-01-15T10:30:00Z</example>
+    [SwaggerProps(Example = "2024-01-15T10:30:00Z", Format = "date-time", ReadOnly = true)]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
     /// <summary>
     /// The date and time when the author was last updated
     /// </summary>
     /// <example>2024-01-20T14:45:00Z</example>
+    [SwaggerProps(Example = "2024-01-20T14:45:00Z", Format = "date-time")]
     public DateTime? UpdatedAt { get; set; }
 }

@@ -30,8 +30,8 @@ public static class SwaggerExtensions
             // Add operation filter to set example values for Author ID parameters
             c.OperationFilter<AuthorIdExampleFilter>();
 
-            // Add schema filter to process Example attributes
-            c.SchemaFilter<ExampleSchemaFilter>();
+            // Add schema filter to process SwaggerProps attributes
+            c.SchemaFilter<SwaggerPropsSchemaFilter>();
 
             // Add document filter to include servers configuration
             c.DocumentFilter<ServersDocumentFilter>();
@@ -150,11 +150,35 @@ public class AuthorIdExampleFilter : IOperationFilter
     }
 }
 
-public class ExampleSchemaFilter : ISchemaFilter
+public class SwaggerPropsSchemaFilter : ISchemaFilter
 {
     public void Apply(OpenApiSchema schema, SchemaFilterContext context)
     {
-        // Check for Example attribute on the type
+        // Check for SwaggerProps attribute on the type
+        var swaggerPropsAttribute = context.Type.GetCustomAttributes(typeof(SwaggerPropsAttribute), false)
+            .FirstOrDefault() as SwaggerPropsAttribute;
+
+        if (swaggerPropsAttribute != null)
+        {
+            ApplySwaggerProps(schema, swaggerPropsAttribute);
+        }
+
+        // Check for SwaggerProps attributes on properties
+        if (schema.Properties != null)
+        {
+            foreach (var property in context.Type.GetProperties())
+            {
+                var propSwaggerPropsAttribute = property.GetCustomAttributes(typeof(SwaggerPropsAttribute), false)
+                    .FirstOrDefault() as SwaggerPropsAttribute;
+
+                if (propSwaggerPropsAttribute != null && schema.Properties.ContainsKey(ToCamelCase(property.Name)))
+                {
+                    ApplySwaggerProps(schema.Properties[ToCamelCase(property.Name)], propSwaggerPropsAttribute);
+                }
+            }
+        }
+
+        // Legacy support for ExampleAttribute
         var exampleAttribute = context.Type.GetCustomAttributes(typeof(ExampleAttribute), false)
             .FirstOrDefault() as ExampleAttribute;
 
@@ -163,7 +187,7 @@ public class ExampleSchemaFilter : ISchemaFilter
             schema.Example = ConvertToOpenApiAny(exampleAttribute.Example);
         }
 
-        // Check for Example attributes on properties
+        // Legacy support for Example attributes on properties
         if (schema.Properties != null)
         {
             foreach (var property in context.Type.GetProperties())
@@ -179,6 +203,77 @@ public class ExampleSchemaFilter : ISchemaFilter
         }
     }
 
+    private static void ApplySwaggerProps(OpenApiSchema schema, SwaggerPropsAttribute swaggerProps)
+    {
+        if (swaggerProps.Example != null)
+        {
+            schema.Example = ConvertToOpenApiAny(swaggerProps.Example);
+        }
+
+        if (!string.IsNullOrEmpty(swaggerProps.Format))
+        {
+            schema.Format = swaggerProps.Format;
+        }
+
+        if (!string.IsNullOrEmpty(swaggerProps.Description))
+        {
+            schema.Description = swaggerProps.Description;
+        }
+
+        if (swaggerProps.ReadOnly)
+        {
+            schema.ReadOnly = true;
+        }
+
+        if (swaggerProps.WriteOnly)
+        {
+            schema.WriteOnly = true;
+        }
+
+        if (swaggerProps.Minimum.HasValue)
+        {
+            schema.Minimum = (decimal)swaggerProps.Minimum.Value;
+        }
+
+        if (swaggerProps.Maximum.HasValue)
+        {
+            schema.Maximum = (decimal)swaggerProps.Maximum.Value;
+        }
+
+        if (swaggerProps.MinLength.HasValue)
+        {
+            schema.MinLength = swaggerProps.MinLength.Value;
+        }
+
+        if (swaggerProps.MaxLength.HasValue)
+        {
+            schema.MaxLength = swaggerProps.MaxLength.Value;
+        }
+
+        if (!string.IsNullOrEmpty(swaggerProps.Pattern))
+        {
+            schema.Pattern = swaggerProps.Pattern;
+        }
+
+        if (swaggerProps.Nullable.HasValue)
+        {
+            schema.Nullable = swaggerProps.Nullable.Value;
+        }
+
+        if (!string.IsNullOrEmpty(swaggerProps.Deprecated))
+        {
+            schema.Deprecated = true;
+            if (string.IsNullOrEmpty(schema.Description))
+            {
+                schema.Description = $"DEPRECATED: {swaggerProps.Deprecated}";
+            }
+            else
+            {
+                schema.Description += $" DEPRECATED: {swaggerProps.Deprecated}";
+            }
+        }
+    }
+
     private static Microsoft.OpenApi.Any.IOpenApiAny ConvertToOpenApiAny(object value)
     {
         return value switch
@@ -190,6 +285,7 @@ public class ExampleSchemaFilter : ISchemaFilter
             float floatValue => new Microsoft.OpenApi.Any.OpenApiFloat(floatValue),
             bool boolValue => new Microsoft.OpenApi.Any.OpenApiBoolean(boolValue),
             DateTime dateTime => new Microsoft.OpenApi.Any.OpenApiDateTime(dateTime),
+            Guid guid => new Microsoft.OpenApi.Any.OpenApiString(guid.ToString()),
             _ => new Microsoft.OpenApi.Any.OpenApiString(value.ToString() ?? "")
         };
     }
