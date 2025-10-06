@@ -12,6 +12,7 @@ public class AuthorDto
     /// The unique identifier for the author
     /// </summary>
     /// <example>1</example>
+    [SwaggerProps(Example = 1)]
     [Range(1, int.MaxValue, ErrorMessage = "Author ID must be a positive integer")]
     public int Id { get; set; }
     

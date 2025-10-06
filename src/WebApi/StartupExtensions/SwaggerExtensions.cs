@@ -27,9 +27,6 @@ public static class SwaggerExtensions
             // Add operation filter to include Correlation-Id header in all operations
             c.OperationFilter<CorrelationIdOperationFilter>();
 
-            // Add operation filter to set example values for Author ID parameters
-            c.OperationFilter<AuthorIdExampleFilter>();
-
             // Add schema filter to process SwaggerProps attributes
             c.SchemaFilter<SwaggerPropsSchemaFilter>();
 
@@ -126,27 +123,6 @@ public class ServersDocumentFilter : IDocumentFilter
                 Description = "QA Environment"
             }
         };
-    }
-}
-
-public class AuthorIdExampleFilter : IOperationFilter
-{
-    public void Apply(OpenApiOperation operation, OperationFilterContext context)
-    {
-        // Check if this is an Authors controller endpoint
-        var controllerName = context.ApiDescription.ActionDescriptor.RouteValues["controller"];
-        if (controllerName?.ToLower() != "authors")
-            return;
-
-        // Find the 'id' parameter and add example value
-        var idParameter = operation.Parameters?.FirstOrDefault(p => 
-            p.Name.Equals("id", StringComparison.OrdinalIgnoreCase) && 
-            p.In == ParameterLocation.Path);
-
-        if (idParameter != null)
-        {
-            idParameter.Example = new Microsoft.OpenApi.Any.OpenApiInteger(1);
-        }
     }
 }
 
