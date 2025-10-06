@@ -30,6 +30,9 @@ public static class SwaggerExtensions
             // Add schema filter to process SwaggerProps attributes
             c.SchemaFilter<SwaggerPropsSchemaFilter>();
 
+            // Add operation filter to restrict media types to application/json only
+            c.OperationFilter<JsonOnlyOperationFilter>();
+
             // Add document filter to include servers configuration
             c.DocumentFilter<ServersDocumentFilter>();
 
@@ -40,6 +43,14 @@ public static class SwaggerExtensions
             {
                 c.IncludeXmlComments(xmlPath);
             }
+
+            // Configure to only show application/json media types
+            c.MapType<string>(() => new OpenApiSchema { Type = "string" });
+            c.MapType<int>(() => new OpenApiSchema { Type = "integer", Format = "int32" });
+            c.MapType<long>(() => new OpenApiSchema { Type = "integer", Format = "int64" });
+            c.MapType<bool>(() => new OpenApiSchema { Type = "boolean" });
+            c.MapType<DateTime>(() => new OpenApiSchema { Type = "string", Format = "date-time" });
+            c.MapType<Guid>(() => new OpenApiSchema { Type = "string", Format = "uuid" });
         });
 
         return services;
@@ -300,6 +311,48 @@ public class SwaggerPropsSchemaFilter : ISchemaFilter
     {
         if (string.IsNullOrEmpty(input)) return input;
         return char.ToLowerInvariant(input[0]) + input[1..];
+    }
+}
+
+public class JsonOnlyOperationFilter : IOperationFilter
+{
+    public void Apply(OpenApiOperation operation, OperationFilterContext context)
+    {
+        // Filter request body content to only include application/json
+        if (operation.RequestBody?.Content != null)
+        {
+            var jsonContent = operation.RequestBody.Content
+                .FirstOrDefault(c => c.Key.Equals("application/json", StringComparison.OrdinalIgnoreCase));
+
+            if (jsonContent.Key != null)
+            {
+                operation.RequestBody.Content = new Dictionary<string, OpenApiMediaType>
+                {
+                    ["application/json"] = jsonContent.Value
+                };
+            }
+        }
+
+        // Filter response content to only include application/json
+        if (operation.Responses != null)
+        {
+            foreach (var response in operation.Responses.Values)
+            {
+                if (response.Content != null)
+                {
+                    var jsonContent = response.Content
+                        .FirstOrDefault(c => c.Key.Equals("application/json", StringComparison.OrdinalIgnoreCase));
+
+                    if (jsonContent.Key != null)
+                    {
+                        response.Content = new Dictionary<string, OpenApiMediaType>
+                        {
+                            ["application/json"] = jsonContent.Value
+                        };
+                    }
+                }
+            }
+        }
     }
 }
 
