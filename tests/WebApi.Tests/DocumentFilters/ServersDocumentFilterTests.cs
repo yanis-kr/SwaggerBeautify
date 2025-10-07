@@ -35,13 +35,25 @@ public class ServersDocumentFilterTests
     }
 
     [Fact]
-    public void Apply_ShouldAddTwoServers()
+    public void Apply_ShouldAddLocalhostServer()
     {
         // Act
         _sut.Apply(_document, _context);
 
         // Assert
-        _document.Servers.Should().HaveCount(2);
+        var localhostServer = _document.Servers.FirstOrDefault(s => s.Url == "https://localhost:60983");
+        localhostServer.Should().NotBeNull();
+        localhostServer!.Description.Should().Be("Local Development");
+    }
+
+    [Fact]
+    public void Apply_ShouldAddThreeServers()
+    {
+        // Act
+        _sut.Apply(_document, _context);
+
+        // Assert
+        _document.Servers.Should().HaveCount(3);
     }
 
     [Fact]
@@ -81,7 +93,7 @@ public class ServersDocumentFilterTests
         _sut.Apply(_document, _context);
 
         // Assert
-        _document.Servers.Should().HaveCount(2);
+        _document.Servers.Should().HaveCount(3);
         _document.Servers.Should().NotContain(s => s.Url == "https://old.example.com");
     }
 
@@ -102,8 +114,12 @@ public class ServersDocumentFilterTests
         _sut.Apply(_document, _context);
 
         // Assert
-        _document.Servers[0].Url.Should().Be("https://dev.local");
-        _document.Servers[1].Url.Should().Be("https://qa.local");
+        _document.Servers[0].Url.Should().Be("https://localhost:60983");
+        _document.Servers[0].Description.Should().Be("Local Development");
+        _document.Servers[1].Url.Should().Be("https://dev.local");
+        _document.Servers[1].Description.Should().Be("Development Environment");
+        _document.Servers[2].Url.Should().Be("https://qa.local");
+        _document.Servers[2].Description.Should().Be("QA Environment");
     }
 
     private static DocumentFilterContext CreateDocumentFilterContext()
