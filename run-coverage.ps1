@@ -12,7 +12,7 @@ if (Test-Path $coverageDir) {
 
 # Run tests with coverage
 Write-Host "`nCollecting coverage data..." -ForegroundColor Cyan
-dotnet test .\src\WebApi.Tests\WebApi.Tests.csproj `
+dotnet test .\tests\WebApi.Tests\WebApi.Tests.csproj `
     --collect:"XPlat Code Coverage" `
     --results-directory:"$coverageDir\raw" `
     --logger:"console;verbosity=minimal"

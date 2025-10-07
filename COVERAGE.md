@@ -215,5 +215,5 @@ To exclude specific files/classes from coverage analysis, add to `.runsettings`:
 
 For issues or questions about test coverage, refer to:
 
-- `src/WebApi.Tests/README.md` - Test suite documentation
+- `tests/WebApi.Tests/README.md` - Test suite documentation
 - `src/WebApi/StartupExtensions/Swagger/README.md` - Architecture overview

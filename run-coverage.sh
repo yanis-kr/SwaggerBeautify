@@ -15,7 +15,7 @@ fi
 # Run tests with coverage
 echo ""
 echo "📊 Collecting coverage data..."
-dotnet test ./src/WebApi.Tests/WebApi.Tests.csproj \
+dotnet test ./tests/WebApi.Tests/WebApi.Tests.csproj \
     --collect:"XPlat Code Coverage" \
     --results-directory:"$COVERAGE_DIR/raw" \
     --logger:"console;verbosity=minimal"
