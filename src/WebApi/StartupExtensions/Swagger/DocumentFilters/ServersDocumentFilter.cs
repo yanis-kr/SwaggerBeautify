@@ -14,7 +14,8 @@ public class ServersDocumentFilter : IDocumentFilter
         {
             new OpenApiServer { Url = "https://localhost:60983", Description = "Local Development" },
             new OpenApiServer { Url = "https://dev.local", Description = "Development Environment" },
-            new OpenApiServer { Url = "https://qa.local", Description = "QA Environment" }
+            new OpenApiServer { Url = "https://qa.local", Description = "QA Environment" },
+            new OpenApiServer { Url = "https://uat.local", Description = "UAT Environment" }
         };
     }
 }

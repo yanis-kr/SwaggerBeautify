@@ -1,7 +1,5 @@
-using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.OpenApi.Models;
-using NSubstitute;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using WebApi.StartupExtensions.Swagger.Filters;
 
@@ -41,9 +39,9 @@ public class JsonOnlyOperationFilterTests
         _sut.Apply(_operation, _context);
 
         // Assert
-        _operation.RequestBody.Content.Should().HaveCount(1);
-        _operation.RequestBody.Content.Should().ContainKey("application/json");
-        _operation.RequestBody.Content["application/json"].Should().BeSameAs(jsonMediaType);
+        Assert.Single(_operation.RequestBody.Content);
+        Assert.True(_operation.RequestBody.Content.ContainsKey("application/json"));
+        Assert.Same(jsonMediaType, _operation.RequestBody.Content["application/json"]);
     }
 
     [Fact]
@@ -77,12 +75,12 @@ public class JsonOnlyOperationFilterTests
         _sut.Apply(_operation, _context);
 
         // Assert
-        _operation.Responses["200"].Content.Should().HaveCount(1);
-        _operation.Responses["200"].Content.Should().ContainKey("application/json");
-        _operation.Responses["200"].Content["application/json"].Should().BeSameAs(jsonMediaType);
+        Assert.Single(_operation.Responses["200"].Content);
+        Assert.True(_operation.Responses["200"].Content.ContainsKey("application/json"));
+        Assert.Same(jsonMediaType, _operation.Responses["200"].Content["application/json"]);
         
-        _operation.Responses["400"].Content.Should().HaveCount(1);
-        _operation.Responses["400"].Content.Should().ContainKey("application/json");
+        Assert.Single(_operation.Responses["400"].Content);
+        Assert.True(_operation.Responses["400"].Content.ContainsKey("application/json"));
     }
 
     [Fact]
@@ -91,11 +89,9 @@ public class JsonOnlyOperationFilterTests
         // Arrange
         _operation.RequestBody = null;
 
-        // Act
-        var act = () => _sut.Apply(_operation, _context);
-
-        // Assert
-        act.Should().NotThrow();
+        // Act & Assert
+        var exception = Record.Exception(() => _sut.Apply(_operation, _context));
+        Assert.Null(exception);
     }
 
     [Fact]
@@ -104,11 +100,9 @@ public class JsonOnlyOperationFilterTests
         // Arrange
         _operation.RequestBody = new OpenApiRequestBody { Content = null };
 
-        // Act
-        var act = () => _sut.Apply(_operation, _context);
-
-        // Assert
-        act.Should().NotThrow();
+        // Act & Assert
+        var exception = Record.Exception(() => _sut.Apply(_operation, _context));
+        Assert.Null(exception);
     }
 
     [Fact]
@@ -117,11 +111,9 @@ public class JsonOnlyOperationFilterTests
         // Arrange
         _operation.Responses = null;
 
-        // Act
-        var act = () => _sut.Apply(_operation, _context);
-
-        // Assert
-        act.Should().NotThrow();
+        // Act & Assert
+        var exception = Record.Exception(() => _sut.Apply(_operation, _context));
+        Assert.Null(exception);
     }
 
     [Fact]
@@ -133,11 +125,9 @@ public class JsonOnlyOperationFilterTests
             ["200"] = new OpenApiResponse { Content = null }
         };
 
-        // Act
-        var act = () => _sut.Apply(_operation, _context);
-
-        // Assert
-        act.Should().NotThrow();
+        // Act & Assert
+        var exception = Record.Exception(() => _sut.Apply(_operation, _context));
+        Assert.Null(exception);
     }
 
     [Fact]
@@ -159,7 +149,7 @@ public class JsonOnlyOperationFilterTests
         // Assert
         // Filter removes non-JSON content types, leaving only JSON if it exists
         // Since there's no JSON content type, the dictionary becomes empty
-        _operation.RequestBody.Content.Keys.Should().NotContain("application/json");
+        Assert.False(_operation.RequestBody.Content.ContainsKey("application/json"));
     }
 
     private static OperationFilterContext CreateOperationFilterContext()
@@ -170,9 +160,18 @@ public class JsonOnlyOperationFilterTests
         
         return new OperationFilterContext(
             apiDescription,
-            Substitute.For<ISchemaGenerator>(),
+            new TestSchemaGenerator(),
             schemaRepository,
             methodInfo!);
     }
-}
 
+    private class TestSchemaGenerator : ISchemaGenerator
+    {
+        public OpenApiSchema GenerateSchema(Type type, SchemaRepository schemaRepository, 
+            System.Reflection.MemberInfo? memberInfo = null, System.Reflection.ParameterInfo? parameterInfo = null, 
+            ApiParameterRouteInfo? routeInfo = null)
+        {
+            return new OpenApiSchema();
+        }
+    }
+}

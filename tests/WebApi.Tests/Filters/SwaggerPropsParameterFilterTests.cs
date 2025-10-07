@@ -1,8 +1,6 @@
-using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
-using NSubstitute;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 using WebApi.Attributes;
@@ -31,11 +29,9 @@ public class SwaggerPropsParameterFilterTests
 
         var context = CreateParameterFilterContext(null);
 
-        // Act
-        var act = () => _sut.Apply(parameter, context);
-
-        // Assert
-        act.Should().NotThrow();
+        // Act & Assert
+        var exception = Record.Exception(() => _sut.Apply(parameter, context));
+        Assert.Null(exception);
     }
 
     [Fact]
@@ -58,12 +54,12 @@ public class SwaggerPropsParameterFilterTests
         _sut.Apply(parameter, context);
 
         // Assert
-        parameter.Schema.Should().NotBeNull();
-        parameter.Schema.Format.Should().Be("uuid");
-        parameter.Schema.Example.Should().NotBeNull();
-        parameter.Schema.Example.Should().BeOfType<OpenApiString>();
+        Assert.NotNull(parameter.Schema);
+        Assert.Equal("uuid", parameter.Schema.Format);
+        Assert.NotNull(parameter.Schema.Example);
+        Assert.IsType<OpenApiString>(parameter.Schema.Example);
         var exampleString = parameter.Schema.Example as OpenApiString;
-        exampleString!.Value.Should().Be("12345678-1234-1234-1234-123456789abc");
+        Assert.Equal("12345678-1234-1234-1234-123456789abc", exampleString!.Value);
     }
 
     [Fact]
@@ -86,7 +82,7 @@ public class SwaggerPropsParameterFilterTests
         _sut.Apply(parameter, context);
 
         // Assert
-        parameter.Description.Should().Be("Test description for user context");
+        Assert.Equal("Test description for user context", parameter.Description);
     }
 
     [Fact]
@@ -109,7 +105,7 @@ public class SwaggerPropsParameterFilterTests
         _sut.Apply(parameter, context);
 
         // Assert
-        parameter.Schema.Should().NotBeNull();
+        Assert.NotNull(parameter.Schema);
     }
 
     private static ParameterFilterContext CreateParameterFilterContext(ParameterInfo? parameterInfo)
@@ -119,10 +115,20 @@ public class SwaggerPropsParameterFilterTests
 
         return new ParameterFilterContext(
             apiParameterDescription,
-            Substitute.For<ISchemaGenerator>(),
+            new TestSchemaGenerator(),
             schemaRepository,
             null, // propertyInfo
             parameterInfo);
+    }
+
+    private class TestSchemaGenerator : ISchemaGenerator
+    {
+        public OpenApiSchema GenerateSchema(Type type, SchemaRepository schemaRepository, 
+            System.Reflection.MemberInfo? memberInfo = null, System.Reflection.ParameterInfo? parameterInfo = null, 
+            ApiParameterRouteInfo? routeInfo = null)
+        {
+            return new OpenApiSchema();
+        }
     }
 
     // Test class for reflection

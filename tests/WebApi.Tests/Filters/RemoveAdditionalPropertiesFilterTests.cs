@@ -1,6 +1,5 @@
-using FluentAssertions;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.OpenApi.Models;
-using NSubstitute;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using WebApi.StartupExtensions.Swagger.Filters;
 
@@ -27,7 +26,7 @@ public class RemoveAdditionalPropertiesFilterTests
         _sut.Apply(schema, _context);
 
         // Assert
-        schema.AdditionalPropertiesAllowed.Should().BeTrue();
+        Assert.True(schema.AdditionalPropertiesAllowed);
     }
 
     [Fact]
@@ -44,7 +43,7 @@ public class RemoveAdditionalPropertiesFilterTests
         _sut.Apply(schema, _context);
 
         // Assert
-        schema.AdditionalProperties.Should().BeNull();
+        Assert.Null(schema.AdditionalProperties);
     }
 
     [Fact]
@@ -64,7 +63,7 @@ public class RemoveAdditionalPropertiesFilterTests
 
         // Assert - Filter should not modify non-object types
         // But OpenApiSchema defaults AdditionalPropertiesAllowed to true, so verify logic executed correctly
-        schema.Type.Should().Be("string");
+        Assert.Equal("string", schema.Type);
     }
 
     [Fact]
@@ -81,7 +80,7 @@ public class RemoveAdditionalPropertiesFilterTests
         _sut.Apply(schema, _context);
 
         // Assert - Filter should not modify non-object types
-        schema.Type.Should().Be("array");
+        Assert.Equal("array", schema.Type);
     }
 
     [Fact]
@@ -98,7 +97,7 @@ public class RemoveAdditionalPropertiesFilterTests
         _sut.Apply(schema, _context);
 
         // Assert - Filter should not modify non-object types
-        schema.Type.Should().BeNull();
+        Assert.Null(schema.Type);
     }
 
     [Theory]
@@ -114,8 +113,8 @@ public class RemoveAdditionalPropertiesFilterTests
         _sut.Apply(schema, _context);
 
         // Assert
-        schema.AdditionalPropertiesAllowed.Should().BeTrue();
-        schema.AdditionalProperties.Should().BeNull();
+        Assert.True(schema.AdditionalPropertiesAllowed);
+        Assert.Null(schema.AdditionalProperties);
     }
 
     private static SchemaFilterContext CreateSchemaFilterContext(Type type)
@@ -123,8 +122,18 @@ public class RemoveAdditionalPropertiesFilterTests
         var schemaRepository = new SchemaRepository();
         return new SchemaFilterContext(
             type,
-            Substitute.For<ISchemaGenerator>(),
+            new TestSchemaGenerator(),
             schemaRepository);
+    }
+
+    private class TestSchemaGenerator : ISchemaGenerator
+    {
+        public OpenApiSchema GenerateSchema(Type type, SchemaRepository schemaRepository, 
+            System.Reflection.MemberInfo? memberInfo = null, System.Reflection.ParameterInfo? parameterInfo = null, 
+            ApiParameterRouteInfo? routeInfo = null)
+        {
+            return new OpenApiSchema();
+        }
     }
 
     private class TestDto
@@ -133,4 +142,3 @@ public class RemoveAdditionalPropertiesFilterTests
         public string Name { get; set; } = string.Empty;
     }
 }
-

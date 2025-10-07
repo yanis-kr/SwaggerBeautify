@@ -1,6 +1,5 @@
-using FluentAssertions;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.OpenApi.Models;
-using NSubstitute;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using WebApi.StartupExtensions.Swagger.DocumentFilters;
 
@@ -30,8 +29,8 @@ public class ServersDocumentFilterTests
         _sut.Apply(_document, _context);
 
         // Assert
-        _document.Servers.Should().NotBeNull();
-        _document.Servers.Should().NotBeEmpty();
+        Assert.NotNull(_document.Servers);
+        Assert.NotEmpty(_document.Servers);
     }
 
     [Fact]
@@ -42,18 +41,18 @@ public class ServersDocumentFilterTests
 
         // Assert
         var localhostServer = _document.Servers.FirstOrDefault(s => s.Url == "https://localhost:60983");
-        localhostServer.Should().NotBeNull();
-        localhostServer!.Description.Should().Be("Local Development");
+        Assert.NotNull(localhostServer);
+        Assert.Equal("Local Development", localhostServer.Description);
     }
 
     [Fact]
-    public void Apply_ShouldAddThreeServers()
+    public void Apply_ShouldAddFourServers()
     {
         // Act
         _sut.Apply(_document, _context);
 
         // Assert
-        _document.Servers.Should().HaveCount(3);
+        Assert.Equal(4, _document.Servers.Count);
     }
 
     [Fact]
@@ -64,8 +63,8 @@ public class ServersDocumentFilterTests
 
         // Assert
         var devServer = _document.Servers.FirstOrDefault(s => s.Url == "https://dev.local");
-        devServer.Should().NotBeNull();
-        devServer!.Description.Should().Be("Development Environment");
+        Assert.NotNull(devServer);
+        Assert.Equal("Development Environment", devServer.Description);
     }
 
     [Fact]
@@ -76,8 +75,20 @@ public class ServersDocumentFilterTests
 
         // Assert
         var qaServer = _document.Servers.FirstOrDefault(s => s.Url == "https://qa.local");
-        qaServer.Should().NotBeNull();
-        qaServer!.Description.Should().Be("QA Environment");
+        Assert.NotNull(qaServer);
+        Assert.Equal("QA Environment", qaServer.Description);
+    }
+
+    [Fact]
+    public void Apply_ShouldAddUatServer()
+    {
+        // Act
+        _sut.Apply(_document, _context);
+
+        // Assert
+        var uatServer = _document.Servers.FirstOrDefault(s => s.Url == "https://uat.local");
+        Assert.NotNull(uatServer);
+        Assert.Equal("UAT Environment", uatServer.Description);
     }
 
     [Fact]
@@ -93,8 +104,8 @@ public class ServersDocumentFilterTests
         _sut.Apply(_document, _context);
 
         // Assert
-        _document.Servers.Should().HaveCount(3);
-        _document.Servers.Should().NotContain(s => s.Url == "https://old.example.com");
+        Assert.Equal(4, _document.Servers.Count);
+        Assert.DoesNotContain(_document.Servers, s => s.Url == "https://old.example.com");
     }
 
     [Fact]
@@ -104,7 +115,7 @@ public class ServersDocumentFilterTests
         _sut.Apply(_document, _context);
 
         // Assert
-        _document.Servers.Should().OnlyContain(s => s.Url.StartsWith("https://"));
+        Assert.All(_document.Servers, s => Assert.StartsWith("https://", s.Url));
     }
 
     [Fact]
@@ -114,12 +125,14 @@ public class ServersDocumentFilterTests
         _sut.Apply(_document, _context);
 
         // Assert
-        _document.Servers[0].Url.Should().Be("https://localhost:60983");
-        _document.Servers[0].Description.Should().Be("Local Development");
-        _document.Servers[1].Url.Should().Be("https://dev.local");
-        _document.Servers[1].Description.Should().Be("Development Environment");
-        _document.Servers[2].Url.Should().Be("https://qa.local");
-        _document.Servers[2].Description.Should().Be("QA Environment");
+        Assert.Equal("https://localhost:60983", _document.Servers[0].Url);
+        Assert.Equal("Local Development", _document.Servers[0].Description);
+        Assert.Equal("https://dev.local", _document.Servers[1].Url);
+        Assert.Equal("Development Environment", _document.Servers[1].Description);
+        Assert.Equal("https://qa.local", _document.Servers[2].Url);
+        Assert.Equal("QA Environment", _document.Servers[2].Description);
+        Assert.Equal("https://uat.local", _document.Servers[3].Url);
+        Assert.Equal("UAT Environment", _document.Servers[3].Description);
     }
 
     private static DocumentFilterContext CreateDocumentFilterContext()
@@ -129,8 +142,18 @@ public class ServersDocumentFilterTests
         
         return new DocumentFilterContext(
             apiDescriptions,
-            Substitute.For<ISchemaGenerator>(),
+            new TestSchemaGenerator(),
             schemaRepository);
+    }
+
+    private class TestSchemaGenerator : ISchemaGenerator
+    {
+        public OpenApiSchema GenerateSchema(Type type, SchemaRepository schemaRepository, 
+            System.Reflection.MemberInfo? memberInfo = null, System.Reflection.ParameterInfo? parameterInfo = null, 
+            ApiParameterRouteInfo? routeInfo = null)
+        {
+            return new OpenApiSchema();
+        }
     }
 }
 

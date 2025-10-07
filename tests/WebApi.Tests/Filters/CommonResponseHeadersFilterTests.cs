@@ -1,7 +1,5 @@
-using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.OpenApi.Models;
-using NSubstitute;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using WebApi.StartupExtensions.Swagger.Filters;
 
@@ -37,12 +35,12 @@ public class CommonResponseHeadersFilterTests
         // Assert
         foreach (var response in _operation.Responses.Values)
         {
-            response.Headers.Should().ContainKey("Correlation-Id");
+            Assert.True(response.Headers.ContainsKey("Correlation-Id"));
             var header = response.Headers["Correlation-Id"];
-            header.Description.Should().Contain("correlation ID");
-            header.Schema.Type.Should().Be("string");
-            header.Schema.Format.Should().Be("uuid");
-            header.Schema.Example.Should().NotBeNull();
+            Assert.Contains("correlation ID", header.Description);
+            Assert.Equal("string", header.Schema.Type);
+            Assert.Equal("uuid", header.Schema.Format);
+            Assert.NotNull(header.Schema.Example);
         }
     }
 
@@ -56,7 +54,7 @@ public class CommonResponseHeadersFilterTests
         _sut.Apply(_operation, _context);
 
         // Assert
-        _operation.Responses.Should().NotBeNull();
+        Assert.NotNull(_operation.Responses);
     }
 
     [Fact]
@@ -76,8 +74,8 @@ public class CommonResponseHeadersFilterTests
         _sut.Apply(_operation, _context);
 
         // Assert
-        _operation.Responses["200"].Headers.Should().NotBeNull();
-        _operation.Responses["200"].Headers.Should().ContainKey("Correlation-Id");
+        Assert.NotNull(_operation.Responses["200"].Headers);
+        Assert.True(_operation.Responses["200"].Headers.ContainsKey("Correlation-Id"));
     }
 
     [Fact]
@@ -106,8 +104,8 @@ public class CommonResponseHeadersFilterTests
         _sut.Apply(_operation, _context);
 
         // Assert
-        _operation.Responses["200"].Headers["Correlation-Id"].Should().BeSameAs(existingHeader);
-        _operation.Responses["200"].Headers["Correlation-Id"].Description.Should().Be("Custom description");
+        Assert.Same(existingHeader, _operation.Responses["200"].Headers["Correlation-Id"]);
+        Assert.Equal("Custom description", _operation.Responses["200"].Headers["Correlation-Id"].Description);
     }
 
     [Fact]
@@ -124,8 +122,8 @@ public class CommonResponseHeadersFilterTests
 
         // Assert
         var header = _operation.Responses["200"].Headers["Correlation-Id"];
-        header.Schema.Format.Should().Be("uuid");
-        header.Schema.Type.Should().Be("string");
+        Assert.Equal("uuid", header.Schema.Format);
+        Assert.Equal("string", header.Schema.Type);
     }
 
     private static OperationFilterContext CreateOperationFilterContext()
@@ -136,9 +134,19 @@ public class CommonResponseHeadersFilterTests
         
         return new OperationFilterContext(
             apiDescription,
-            Substitute.For<ISchemaGenerator>(),
+            new TestSchemaGenerator(),
             schemaRepository,
             methodInfo!);
+    }
+
+    private class TestSchemaGenerator : ISchemaGenerator
+    {
+        public OpenApiSchema GenerateSchema(Type type, SchemaRepository schemaRepository, 
+            System.Reflection.MemberInfo? memberInfo = null, System.Reflection.ParameterInfo? parameterInfo = null, 
+            ApiParameterRouteInfo? routeInfo = null)
+        {
+            return new OpenApiSchema();
+        }
     }
 }
 

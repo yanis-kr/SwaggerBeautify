@@ -1,6 +1,4 @@
-using FluentAssertions;
 using Microsoft.OpenApi.Models;
-using NSubstitute;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using WebApi.Attributes;
 using WebApi.StartupExtensions.Swagger.Filters;
@@ -27,7 +25,7 @@ public class SwaggerPropsSchemaFilterTests
         _sut.Apply(schema, context);
 
         // Assert
-        schema.Properties["name"].Example.Should().NotBeNull();
+        Assert.NotNull(schema.Properties["name"].Example);
     }
 
     [Fact]
@@ -41,7 +39,7 @@ public class SwaggerPropsSchemaFilterTests
         _sut.Apply(schema, context);
 
         // Assert
-        schema.Properties["email"].Format.Should().Be("email");
+        Assert.Equal("email", schema.Properties["email"].Format);
     }
 
     [Fact]
@@ -55,7 +53,7 @@ public class SwaggerPropsSchemaFilterTests
         _sut.Apply(schema, context);
 
         // Assert
-        schema.Properties["name"].Description.Should().Be("User's full name");
+        Assert.Equal("User's full name", schema.Properties["name"].Description);
     }
 
     [Fact]
@@ -69,7 +67,7 @@ public class SwaggerPropsSchemaFilterTests
         _sut.Apply(schema, context);
 
         // Assert
-        schema.Properties["id"].ReadOnly.Should().BeTrue();
+        Assert.True(schema.Properties["id"].ReadOnly);
     }
 
     [Fact]
@@ -83,7 +81,7 @@ public class SwaggerPropsSchemaFilterTests
         _sut.Apply(schema, context);
 
         // Assert
-        schema.Properties["password"].WriteOnly.Should().BeTrue();
+        Assert.True(schema.Properties["password"].WriteOnly);
     }
 
     [Fact]
@@ -98,7 +96,7 @@ public class SwaggerPropsSchemaFilterTests
         _sut.Apply(schema, context);
 
         // Assert - verify the filter doesn't throw when processing properties
-        schema.Should().NotBeNull();
+        Assert.NotNull(schema);
     }
 
     [Fact]
@@ -112,7 +110,7 @@ public class SwaggerPropsSchemaFilterTests
         _sut.Apply(schema, context);
 
         // Assert - verify the filter doesn't throw when processing properties
-        schema.Should().NotBeNull();
+        Assert.NotNull(schema);
     }
 
     [Fact]
@@ -126,7 +124,7 @@ public class SwaggerPropsSchemaFilterTests
         _sut.Apply(schema, context);
 
         // Assert - verify the filter doesn't throw when processing properties
-        schema.Should().NotBeNull();
+        Assert.NotNull(schema);
     }
 
     [Fact]
@@ -140,7 +138,7 @@ public class SwaggerPropsSchemaFilterTests
         _sut.Apply(schema, context);
 
         // Assert - verify the filter doesn't throw when processing properties
-        schema.Should().NotBeNull();
+        Assert.NotNull(schema);
     }
 
     [Fact]
@@ -154,7 +152,7 @@ public class SwaggerPropsSchemaFilterTests
         _sut.Apply(schema, context);
 
         // Assert
-        schema.Properties["code"].Pattern.Should().Be("^[A-Z]{3}$");
+        Assert.Equal("^[A-Z]{3}$", schema.Properties["code"].Pattern);
     }
 
     [Fact]
@@ -168,9 +166,9 @@ public class SwaggerPropsSchemaFilterTests
         _sut.Apply(schema, context);
 
         // Assert
-        schema.Properties["oldField"].Deprecated.Should().BeTrue();
-        schema.Properties["oldField"].Description.Should().Contain("DEPRECATED");
-        schema.Properties["oldField"].Description.Should().Contain("Use newField instead");
+        Assert.True(schema.Properties["oldField"].Deprecated);
+        Assert.Contains("DEPRECATED", schema.Properties["oldField"].Description);
+        Assert.Contains("Use newField instead", schema.Properties["oldField"].Description);
     }
 
     [Fact]
@@ -184,7 +182,7 @@ public class SwaggerPropsSchemaFilterTests
         _sut.Apply(schema, context);
 
         // Assert
-        schema.Properties.Should().NotContainKey("hiddenField");
+        Assert.False(schema.Properties.ContainsKey("hiddenField"));
     }
 
     [Fact]
@@ -198,9 +196,9 @@ public class SwaggerPropsSchemaFilterTests
         _sut.Apply(schema, context);
 
         // Assert
-        schema.Properties.Should().BeEmpty();
-        schema.Type.Should().BeNull();
-        schema.Description.Should().Be("Hidden from API documentation");
+        Assert.Empty(schema.Properties);
+        Assert.Null(schema.Type);
+        Assert.Equal("Hidden from API documentation", schema.Description);
     }
 
     [Fact]
@@ -215,7 +213,7 @@ public class SwaggerPropsSchemaFilterTests
         _sut.Apply(schema, context);
 
         // Assert
-        schema.Properties.Should().HaveCount(originalProperties);
+        Assert.Equal(originalProperties, schema.Properties.Count);
     }
 
     [Theory]
@@ -229,19 +227,16 @@ public class SwaggerPropsSchemaFilterTests
         var schema = CreateSchema();
         var context = CreateSchemaFilterContext(typeof(DtoWithExample));
 
-        // Act - The filter should not throw when processing schemas with properties
-        // that have examples of different types (int, string, bool, double)
-        var act = () => _sut.Apply(schema, context);
-
-        // Assert
-        act.Should().NotThrow();
+        // Act & Assert
+        var exception = Record.Exception(() => _sut.Apply(schema, context));
+        Assert.Null(exception);
         
         // This test verifies that the ConvertToOpenApiAny method in the filter
         // can handle different value types without throwing exceptions.
-        // The exampleValue parameter demonstrates the types being tested.
         var exampleType = exampleValue.GetType();
-        exampleType.Should().Match(t => 
-            t == typeof(int) || t == typeof(string) || t == typeof(bool) || t == typeof(double),
+        Assert.True(
+            exampleType == typeof(int) || exampleType == typeof(string) || 
+            exampleType == typeof(bool) || exampleType == typeof(double),
             "the example value should be one of the supported types");
     }
 
@@ -280,8 +275,18 @@ public class SwaggerPropsSchemaFilterTests
         var schemaRepository = new SchemaRepository();
         return new SchemaFilterContext(
             type,
-            Substitute.For<ISchemaGenerator>(),
+            new TestSchemaGenerator(),
             schemaRepository);
+    }
+
+    private class TestSchemaGenerator : ISchemaGenerator
+    {
+        public OpenApiSchema GenerateSchema(Type type, SchemaRepository schemaRepository, 
+            System.Reflection.MemberInfo? memberInfo = null, System.Reflection.ParameterInfo? parameterInfo = null, 
+            Microsoft.AspNetCore.Mvc.ApiExplorer.ApiParameterRouteInfo? routeInfo = null)
+        {
+            return new OpenApiSchema();
+        }
     }
 
     // Test DTOs
@@ -345,4 +350,3 @@ public class SwaggerPropsSchemaFilterTests
         public int Age { get; set; }
     }
 }
-
