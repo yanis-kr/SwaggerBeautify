@@ -1,9 +1,6 @@
-using FluentAssertions;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.DependencyInjection;
-using NSubstitute;
 using WebApi.StartupExtensions.Swagger;
 
 namespace WebApi.Tests.Extensions;
@@ -17,14 +14,11 @@ public class SwaggerApplicationExtensionsTests
         var services = new ServiceCollection();
         var serviceProvider = services.BuildServiceProvider();
         
-        var appBuilder = Substitute.For<IApplicationBuilder>();
-        appBuilder.ApplicationServices.Returns(serviceProvider);
+        var appBuilder = new TestApplicationBuilder(serviceProvider);
 
-        // Act
-        var act = () => appBuilder.UseSwaggerDocumentation();
-
-        // Assert
-        act.Should().Throw<InvalidOperationException>();
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() => appBuilder.UseSwaggerDocumentation());
+        Assert.NotNull(exception);
     }
 
     [Fact]
@@ -32,33 +26,49 @@ public class SwaggerApplicationExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
-        services.AddSingleton(CreateMockApiVersionDescriptionProvider());
+        services.AddSingleton<IApiVersionDescriptionProvider>(new TestApiVersionDescriptionProvider());
         var serviceProvider = services.BuildServiceProvider();
         
-        var appBuilder = Substitute.For<IApplicationBuilder>();
-        appBuilder.ApplicationServices.Returns(serviceProvider);
-        appBuilder.Use(Arg.Any<Func<RequestDelegate, RequestDelegate>>()).Returns(appBuilder);
+        var appBuilder = new TestApplicationBuilder(serviceProvider);
 
         // Act & Assert
         // The method will throw when trying to use Swagger middleware without full setup
-        // but we verify it at least tries to call the provider
-        var act = () => appBuilder.UseSwaggerDocumentation();
-        
-        // Will throw because Swagger services aren't fully configured, but that's expected in unit test
-        act.Should().Throw<InvalidOperationException>()
-            .WithMessage("*SwaggerOptions*");
+        var exception = Assert.Throws<InvalidOperationException>(() => appBuilder.UseSwaggerDocumentation());
+        Assert.Contains("SwaggerOptions", exception.Message);
     }
 
-    private static IApiVersionDescriptionProvider CreateMockApiVersionDescriptionProvider()
+    private class TestApplicationBuilder : Microsoft.AspNetCore.Builder.IApplicationBuilder
     {
-        var provider = Substitute.For<IApiVersionDescriptionProvider>();
-        var versionDescription = Substitute.For<ApiVersionDescription>(
-            new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0),
-            "v1",
-            false);
-        
-        provider.ApiVersionDescriptions.Returns(new[] { versionDescription });
-        return provider;
+        public TestApplicationBuilder(IServiceProvider serviceProvider)
+        {
+            ApplicationServices = serviceProvider;
+            Properties = new Dictionary<string, object?>();
+        }
+
+        public IServiceProvider ApplicationServices { get; set; }
+        public IFeatureCollection ServerFeatures => throw new NotImplementedException();
+        public IDictionary<string, object?> Properties { get; }
+        public Microsoft.AspNetCore.Http.RequestDelegate Build() => throw new NotImplementedException();
+        public Microsoft.AspNetCore.Builder.IApplicationBuilder New() => throw new NotImplementedException();
+        public Microsoft.AspNetCore.Builder.IApplicationBuilder Use(Func<Microsoft.AspNetCore.Http.RequestDelegate, Microsoft.AspNetCore.Http.RequestDelegate> middleware)
+        {
+            return this;
+        }
+    }
+
+    private class TestApiVersionDescriptionProvider : IApiVersionDescriptionProvider
+    {
+        public IReadOnlyList<ApiVersionDescription> ApiVersionDescriptions =>
+            new List<ApiVersionDescription>
+            {
+                new ApiVersionDescription(new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0), "v1", false)
+            };
+
+        public bool IsDeprecated(Microsoft.AspNetCore.Mvc.Abstractions.ActionDescriptor actionDescriptor, 
+            Microsoft.AspNetCore.Mvc.ApiVersion apiVersion)
+        {
+            return false;
+        }
     }
 }
 

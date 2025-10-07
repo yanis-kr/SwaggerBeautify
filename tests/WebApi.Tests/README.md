@@ -4,45 +4,53 @@ Comprehensive xUnit test suite for all Swagger/OpenAPI configuration code.
 
 ## Test Statistics
 
-- **Total Tests**: 86
+- **Total Tests**: 88
 - **Test Status**: ✅ All Passing
 - **Test Framework**: xUnit
-- **Assertion Library**: FluentAssertions
-- **Mocking Library**: NSubstitute
+- **Assertion Library**: xUnit (standard asserts) + FluentAssertions (Infrastructure tests only)
+- **Mocking Library**: None (removed - using simple test implementations)
 
 ## Test Structure
 
 ```
 WebApi.Tests/
-├── Filters/                                          # Operation and Schema Filter Tests
-│   ├── CorrelationIdOperationFilterTests.cs         # 6 tests
-│   ├── JsonOnlyOperationFilterTests.cs              # 8 tests
-│   ├── RemoveAdditionalPropertiesFilterTests.cs     # 7 tests
-│   └── SwaggerPropsSchemaFilterTests.cs             # 22 tests
-├── DocumentFilters/                                  # Document Filter Tests
-│   └── ServersDocumentFilterTests.cs                # 7 tests
+├── SwaggerTests.cs                                   # All Swagger-related tests (71 tests)
+│   ├── ServersDocumentFilterTests                   # 9 tests - 4 servers (local, dev, qa, uat)
+│   ├── CommonResponseHeadersFilterTests             # 5 tests
+│   ├── SwaggerPropsParameterFilterTests             # 4 tests
+│   ├── SwaggerPropsSchemaFilterTests                # 18 tests
+│   ├── JsonOnlyOperationFilterTests                 # 8 tests
+│   ├── RemoveAdditionalPropertiesFilterTests        # 7 tests
+│   ├── SwaggerServiceExtensionsTests                # 4 tests
+│   └── SwaggerSecurityTests                         # 16 tests
 ├── Extensions/                                       # Extension Method Tests
-│   ├── SwaggerServiceExtensionsTests.cs             # 4 tests
-│   ├── SwaggerApplicationExtensionsTests.cs         # 2 tests
-│   └── SwaggerSecurityTests.cs                      # 17 tests
+│   └── SwaggerApplicationExtensionsTests.cs         # 2 tests
 └── Infrastructure/                                   # Infrastructure Tests
     ├── MediatorTests.cs                             # 12 tests
     ├── UnitTests.cs                                 # 6 tests
-    └── MediatorExtensionsTests.cs                   # 6 tests
+    └── MediatorExtensionsTests.cs                   # 1 test
 ```
 
 ## Coverage by Component
 
-### 1. CorrelationIdOperationFilter (6 tests)
+### 1. ServersDocumentFilter (9 tests)
 
-✅ Parameter addition  
-✅ Response header configuration  
-✅ Null handling for parameters  
-✅ Null handling for responses  
-✅ Example value generation  
+✅ Server list initialization
+✅ Four servers added (localhost, dev, qa, uat)
+✅ Individual server validation
+✅ Server replacement
+✅ HTTPS protocol verification
+✅ Correct server ordering
+
+### 2. CommonResponseHeadersFilter (5 tests)
+
+✅ Correlation-Id header added to all responses
+✅ Response initialization handling
+✅ Header initialization handling
+✅ Existing header preservation
 ✅ UUID format validation
 
-### 2. JsonOnlyOperationFilter (8 tests)
+### 3. JsonOnlyOperationFilter (8 tests)
 
 ✅ Request body filtering  
 ✅ Response content filtering  
@@ -53,7 +61,7 @@ WebApi.Tests/
 ✅ Content preservation logic  
 ✅ Multiple response codes
 
-### 3. RemoveAdditionalPropertiesFilter (7 tests)
+### 4. RemoveAdditionalPropertiesFilter (7 tests)
 
 ✅ Object schema modification  
 ✅ AdditionalPropertiesAllowed flag  
@@ -79,7 +87,14 @@ WebApi.Tests/
 ✅ Multiple property types (int, string, bool, double)  
 ✅ CamelCase property naming
 
-### 5. ServersDocumentFilter (7 tests)
+### 6. SwaggerPropsParameterFilter (4 tests)
+
+✅ Null parameter info handling
+✅ SwaggerProps attribute application
+✅ Description application
+✅ Schema initialization
+
+### 7. SwaggerServiceExtensions (4 tests)
 
 ✅ Server list creation  
 ✅ Development server configuration  
@@ -197,22 +212,28 @@ Used for testing multiple scenarios with different inputs:
 public void Apply_ShouldBeCaseInsensitiveForObjectType(string typeValue)
 ```
 
-### 4. **FluentAssertions**
+### 4. **xUnit Standard Assertions**
 
-Readable and expressive assertions:
+Clean and straightforward assertions:
 
 ```csharp
-schema.Properties["name"].Example.Should().NotBeNull();
-_operation.Parameters.Should().HaveCount(1);
+Assert.NotNull(schema.Properties["name"].Example);
+Assert.Equal(1, _operation.Parameters.Count);
+Assert.True(schema.Properties.ContainsKey("name"));
+Assert.Same(expected, actual);
 ```
 
-### 5. **NSubstitute Mocking**
+### 5. **Simple Test Implementations**
 
-Clean mocking for dependencies:
+No mocking framework needed - using simple test helper classes:
 
 ```csharp
+private class TestSchemaGenerator : ISchemaGenerator
+{
+    public OpenApiSchema GenerateSchema(...) => new OpenApiSchema();
+}
+
 var context = CreateOperationFilterContext();
-Substitute.For<ISchemaGenerator>()
 ```
 
 ## Dependencies
@@ -220,8 +241,7 @@ Substitute.For<ISchemaGenerator>()
 ```xml
 <PackageReference Include="xunit" />
 <PackageReference Include="xunit.runner.visualstudio" />
-<PackageReference Include="FluentAssertions" />
-<PackageReference Include="NSubstitute" />
+<PackageReference Include="FluentAssertions" /> <!-- Only for Infrastructure tests -->
 <PackageReference Include="Microsoft.AspNetCore.TestHost" />
 ```
 
