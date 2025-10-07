@@ -4,7 +4,7 @@ Comprehensive xUnit test suite for all Swagger/OpenAPI configuration code.
 
 ## Test Statistics
 
-- **Total Tests**: 69
+- **Total Tests**: 68
 - **Test Status**: ✅ All Passing
 - **Test Framework**: xUnit
 - **Assertion Library**: FluentAssertions
@@ -18,7 +18,7 @@ WebApi.Tests/
 │   ├── CorrelationIdOperationFilterTests.cs         # 6 tests
 │   ├── JsonOnlyOperationFilterTests.cs              # 8 tests
 │   ├── RemoveAdditionalPropertiesFilterTests.cs     # 7 tests
-│   └── SwaggerPropsSchemaFilterTests.cs             # 23 tests
+│   └── SwaggerPropsSchemaFilterTests.cs             # 22 tests
 ├── DocumentFilters/                                  # Document Filter Tests
 │   └── ServersDocumentFilterTests.cs                # 7 tests
 └── Extensions/                                       # Extension Method Tests
@@ -71,7 +71,6 @@ WebApi.Tests/
 ✅ Deprecated field marking  
 ✅ Property hiding (Hide = true)  
 ✅ Class hiding (class-level Hide)  
-✅ Legacy ExampleAttribute support  
 ✅ Null/empty attribute handling  
 ✅ Multiple property types (int, string, bool, double)  
 ✅ CamelCase property naming

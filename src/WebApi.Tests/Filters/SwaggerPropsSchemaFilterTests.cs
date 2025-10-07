@@ -204,20 +204,6 @@ public class SwaggerPropsSchemaFilterTests
     }
 
     [Fact]
-    public void Apply_WhenPropertyHasExampleAttribute_ShouldSetExample()
-    {
-        // Arrange
-        var schema = CreateSchema();
-        var context = CreateSchemaFilterContext(typeof(DtoWithExampleAttribute));
-
-        // Act
-        _sut.Apply(schema, context);
-
-        // Assert
-        schema.Properties["name"].Example.Should().NotBeNull();
-    }
-
-    [Fact]
     public void Apply_WhenNoAttributes_ShouldNotModifySchema()
     {
         // Arrange
@@ -350,12 +336,6 @@ public class SwaggerPropsSchemaFilterTests
     [SwaggerProps(Hide = true)]
     private class HiddenDto
     {
-        public string Name { get; set; } = string.Empty;
-    }
-
-    private class DtoWithExampleAttribute
-    {
-        [Example("John Doe")]
         public string Name { get; set; } = string.Empty;
     }
 

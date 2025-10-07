@@ -64,30 +64,6 @@ public class SwaggerPropsSchemaFilter : ISchemaFilter
                 schema.Properties.Remove(propertyName);
             }
         }
-
-        // Legacy support for ExampleAttribute
-        var exampleAttribute = context.Type.GetCustomAttributes(typeof(ExampleAttribute), false)
-            .FirstOrDefault() as ExampleAttribute;
-
-        if (exampleAttribute != null)
-        {
-            schema.Example = ConvertToOpenApiAny(exampleAttribute.Example);
-        }
-
-        // Legacy support for Example attributes on properties
-        if (schema.Properties != null)
-        {
-            foreach (var property in context.Type.GetProperties())
-            {
-                var propExampleAttribute = property.GetCustomAttributes(typeof(ExampleAttribute), false)
-                    .FirstOrDefault() as ExampleAttribute;
-
-                if (propExampleAttribute != null && schema.Properties.ContainsKey(ToCamelCase(property.Name)))
-                {
-                    schema.Properties[ToCamelCase(property.Name)].Example = ConvertToOpenApiAny(propExampleAttribute.Example);
-                }
-            }
-        }
     }
 
     private static void ApplySwaggerProps(OpenApiSchema schema, SwaggerPropsAttribute swaggerProps)
