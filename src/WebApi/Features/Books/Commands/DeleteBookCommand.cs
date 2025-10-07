@@ -1,8 +1,9 @@
 using WebApi.Infrastructure.Mediator;
+using WebApi.Models;
 
 namespace WebApi.Features.Books.Commands;
 
-public record DeleteBookCommand(int Id) : IRequest;
+public record DeleteBookCommand(int Id, CommonParameters CommonParams) : IRequest;
 
 public class DeleteBookCommandHandler : IRequestHandler<DeleteBookCommand>
 {

@@ -1,9 +1,10 @@
 using WebApi.Infrastructure.Mediator;
 using WebApi.Features.Authors.Models;
+using WebApi.Models;
 
 namespace WebApi.Features.Authors.Queries;
 
-public record GetAllAuthorsQuery : IRequest<IEnumerable<AuthorDto>>;
+public record GetAllAuthorsQuery(CommonParameters CommonParams) : IRequest<IEnumerable<AuthorDto>>;
 
 public class GetAllAuthorsQueryHandler : IRequestHandler<GetAllAuthorsQuery, IEnumerable<AuthorDto>>
 {

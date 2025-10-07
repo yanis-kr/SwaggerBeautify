@@ -1,9 +1,10 @@
 using WebApi.Infrastructure.Mediator;
 using WebApi.Features.Books.Models;
+using WebApi.Models;
 
 namespace WebApi.Features.Books.Queries;
 
-public record GetAllBooksQuery : IRequest<IEnumerable<BookDto>>;
+public record GetAllBooksQuery(CommonParameters CommonParams) : IRequest<IEnumerable<BookDto>>;
 
 public class GetAllBooksQueryHandler : IRequestHandler<GetAllBooksQuery, IEnumerable<BookDto>>
 {

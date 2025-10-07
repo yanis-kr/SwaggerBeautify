@@ -1,10 +1,11 @@
 using WebApi.Infrastructure.Mediator;
 using WebApi.Attributes;
 using WebApi.Features.Authors.Models;
+using WebApi.Models;
 
 namespace WebApi.Features.Authors.Commands;
 
-public record CreateAuthorCommand(CreateAuthorRequest Request) : IRequest<AuthorDto>;
+public record CreateAuthorCommand(CreateAuthorRequest Request, CommonParameters CommonParams) : IRequest<AuthorDto>;
 
 /// <summary>
 /// Request model for creating a new author

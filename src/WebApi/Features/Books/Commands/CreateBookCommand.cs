@@ -1,9 +1,10 @@
 using WebApi.Infrastructure.Mediator;
 using WebApi.Features.Books.Models;
+using WebApi.Models;
 
 namespace WebApi.Features.Books.Commands;
 
-public record CreateBookCommand(CreateBookRequest Request) : IRequest<BookDto>;
+public record CreateBookCommand(CreateBookRequest Request, CommonParameters CommonParams) : IRequest<BookDto>;
 
 public class CreateBookRequest
 {
@@ -19,6 +20,10 @@ public class CreateBookCommandHandler : IRequestHandler<CreateBookCommand, BookD
 
     public Task<BookDto> Handle(CreateBookCommand request, CancellationToken cancellationToken)
     {
+        // Access common parameters if needed
+        // var correlationId = request.CommonParams.CorrelationId ?? Guid.NewGuid();
+        // var userContext = request.CommonParams.UserContext;
+        
         var book = new BookDto
         {
             Id = _nextId++,

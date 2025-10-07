@@ -1,8 +1,9 @@
 using WebApi.Infrastructure.Mediator;
+using WebApi.Models;
 
 namespace WebApi.Features.Authors.Commands;
 
-public record UpdateAuthorCommand(int Id, UpdateAuthorRequest Request) : IRequest;
+public record UpdateAuthorCommand(int Id, UpdateAuthorRequest Request, CommonParameters CommonParams) : IRequest;
 
 /// <summary>
 /// Request model for updating an existing author

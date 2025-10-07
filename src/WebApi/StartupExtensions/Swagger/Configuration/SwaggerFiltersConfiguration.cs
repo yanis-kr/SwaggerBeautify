@@ -12,8 +12,10 @@ public static class SwaggerFiltersConfiguration
     public static void Configure(SwaggerGenOptions options)
     {
         // Operation filters
-        options.OperationFilter<CorrelationIdOperationFilter>();
         options.OperationFilter<JsonOnlyOperationFilter>();
+
+        // Parameter filters
+        options.ParameterFilter<SwaggerPropsParameterFilter>();
 
         // Schema filters
         options.SchemaFilter<SwaggerPropsSchemaFilter>();

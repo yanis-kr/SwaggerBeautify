@@ -1,8 +1,9 @@
 using WebApi.Infrastructure.Mediator;
+using WebApi.Models;
 
 namespace WebApi.Features.Authors.Commands;
 
-public record DeleteAuthorCommand(int Id) : IRequest;
+public record DeleteAuthorCommand(int Id, CommonParameters CommonParams) : IRequest;
 
 public class DeleteAuthorCommandHandler : IRequestHandler<DeleteAuthorCommand>
 {

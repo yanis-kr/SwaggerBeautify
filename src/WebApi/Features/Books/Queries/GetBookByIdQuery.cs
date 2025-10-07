@@ -1,9 +1,10 @@
 using WebApi.Infrastructure.Mediator;
 using WebApi.Features.Books.Models;
+using WebApi.Models;
 
 namespace WebApi.Features.Books.Queries;
 
-public record GetBookByIdQuery(int Id) : IRequest<BookDto?>;
+public record GetBookByIdQuery(int Id, CommonParameters CommonParams) : IRequest<BookDto?>;
 
 public class GetBookByIdQueryHandler : IRequestHandler<GetBookByIdQuery, BookDto?>
 {

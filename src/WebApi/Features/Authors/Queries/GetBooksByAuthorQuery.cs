@@ -1,9 +1,10 @@
 using WebApi.Infrastructure.Mediator;
 using WebApi.Features.Books.Models;
+using WebApi.Models;
 
 namespace WebApi.Features.Authors.Queries;
 
-public record GetBooksByAuthorQuery(int AuthorId) : IRequest<IEnumerable<BookDto>>;
+public record GetBooksByAuthorQuery(int AuthorId, CommonParameters CommonParams) : IRequest<IEnumerable<BookDto>>;
 
 public class GetBooksByAuthorQueryHandler : IRequestHandler<GetBooksByAuthorQuery, IEnumerable<BookDto>>
 {

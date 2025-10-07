@@ -1,8 +1,9 @@
 using WebApi.Infrastructure.Mediator;
+using WebApi.Models;
 
 namespace WebApi.Features.Books.Commands;
 
-public record UpdateBookCommand(int Id, UpdateBookRequest Request) : IRequest;
+public record UpdateBookCommand(int Id, UpdateBookRequest Request, CommonParameters CommonParams) : IRequest;
 
 public class UpdateBookRequest
 {

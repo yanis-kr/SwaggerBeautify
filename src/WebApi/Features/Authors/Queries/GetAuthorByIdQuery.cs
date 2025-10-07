@@ -1,9 +1,10 @@
 using WebApi.Infrastructure.Mediator;
 using WebApi.Features.Authors.Models;
+using WebApi.Models;
 
 namespace WebApi.Features.Authors.Queries;
 
-public record GetAuthorByIdQuery(int Id) : IRequest<AuthorDto?>;
+public record GetAuthorByIdQuery(int Id, CommonParameters CommonParams) : IRequest<AuthorDto?>;
 
 public class GetAuthorByIdQueryHandler : IRequestHandler<GetAuthorByIdQuery, AuthorDto?>
 {
