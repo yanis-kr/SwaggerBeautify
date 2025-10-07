@@ -36,7 +36,7 @@ public static class SwaggerServiceExtensions
         c.SwaggerDoc("v1", new OpenApiInfo
         {
             Title = "WebApi",
-            Version = "v1",
+            Version = "1.2.3",
             Description = "A sample Web API demonstrating Swagger documentation",
             Contact = new OpenApiContact
             {
@@ -50,8 +50,8 @@ public static class SwaggerServiceExtensions
             }
         });
 
-        // Use fully qualified names for schema IDs
-        c.CustomSchemaIds(type => type.FullName);
+        // Use simple type names for schema IDs
+        c.CustomSchemaIds(type => type.Name);
     }
 
     private static void AddXmlComments(SwaggerGenOptions c)
