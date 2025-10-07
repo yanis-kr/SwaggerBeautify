@@ -211,6 +211,31 @@ public class SwaggerTests
         }
 
         [Fact]
+        public void Apply_ShouldAddAccessControlAllowOriginToAllResponses()
+        {
+            // Arrange
+            _operation.Responses = new OpenApiResponses
+            {
+                ["200"] = new OpenApiResponse { Description = "Success" },
+                ["400"] = new OpenApiResponse { Description = "Bad Request" },
+                ["404"] = new OpenApiResponse { Description = "Not Found" }
+            };
+
+            // Act
+            _sut.Apply(_operation, _context);
+
+            // Assert
+            foreach (var response in _operation.Responses.Values)
+            {
+                Assert.True(response.Headers.ContainsKey("Access-Control-Allow-Origin"));
+                var header = response.Headers["Access-Control-Allow-Origin"];
+                Assert.Contains("origin", header.Description);
+                Assert.Equal("string", header.Schema.Type);
+                Assert.NotNull(header.Schema.Example);
+            }
+        }
+
+        [Fact]
         public void Apply_WhenResponsesIsNull_ShouldInitializeResponses()
         {
             // Arrange
@@ -290,6 +315,25 @@ public class SwaggerTests
             var header = _operation.Responses["200"].Headers["Correlation-Id"];
             Assert.Equal("uuid", header.Schema.Format);
             Assert.Equal("string", header.Schema.Type);
+        }
+
+        [Fact]
+        public void Apply_AccessControlAllowOrigin_ShouldHaveWildcardExample()
+        {
+            // Arrange
+            _operation.Responses = new OpenApiResponses
+            {
+                ["200"] = new OpenApiResponse { Description = "Success" }
+            };
+
+            // Act
+            _sut.Apply(_operation, _context);
+
+            // Assert
+            var header = _operation.Responses["200"].Headers["Access-Control-Allow-Origin"];
+            Assert.NotNull(header.Schema.Example);
+            var example = header.Schema.Example as Microsoft.OpenApi.Any.OpenApiString;
+            Assert.Equal("*", example!.Value);
         }
 
         private static OperationFilterContext CreateOperationFilterContext()

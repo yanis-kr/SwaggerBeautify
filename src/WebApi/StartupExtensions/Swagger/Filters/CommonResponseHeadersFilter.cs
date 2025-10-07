@@ -12,7 +12,7 @@ public class CommonResponseHeadersFilter : IOperationFilter
     {
         operation.Responses ??= new OpenApiResponses();
         
-        // Add Correlation-Id response header to all response codes
+        // Add common response headers to all response codes
         foreach (var response in operation.Responses.Values)
         {
             response.Headers ??= new Dictionary<string, OpenApiHeader>();
@@ -27,6 +27,19 @@ public class CommonResponseHeadersFilter : IOperationFilter
                         Type = "string",
                         Format = "uuid",
                         Example = new Microsoft.OpenApi.Any.OpenApiString("12345678-1234-1234-1234-123456789abc")
+                    }
+                };
+            }
+
+            if (!response.Headers.ContainsKey("Access-Control-Allow-Origin"))
+            {
+                response.Headers["Access-Control-Allow-Origin"] = new OpenApiHeader
+                {
+                    Description = "Indicates which origin(s) are allowed to access the resource. '*' allows all origins.",
+                    Schema = new OpenApiSchema
+                    {
+                        Type = "string",
+                        Example = new Microsoft.OpenApi.Any.OpenApiString("*")
                     }
                 };
             }
