@@ -4,7 +4,7 @@ Comprehensive xUnit test suite for all Swagger/OpenAPI configuration code.
 
 ## Test Statistics
 
-- **Total Tests**: 52
+- **Total Tests**: 69
 - **Test Status**: ✅ All Passing
 - **Test Framework**: xUnit
 - **Assertion Library**: FluentAssertions
@@ -23,7 +23,8 @@ WebApi.Tests/
 │   └── ServersDocumentFilterTests.cs                # 7 tests
 └── Extensions/                                       # Extension Method Tests
     ├── SwaggerServiceExtensionsTests.cs             # 4 tests
-    └── SwaggerApplicationExtensionsTests.cs         # 2 tests
+    ├── SwaggerApplicationExtensionsTests.cs         # 2 tests
+    └── SwaggerSecurityTests.cs                      # 17 tests
 ```
 
 ## Coverage by Component
@@ -96,6 +97,25 @@ WebApi.Tests/
 
 ✅ ApiVersionDescriptionProvider requirement  
 ✅ SwaggerOptions validation
+
+### 8. JWT Bearer Security Configuration (17 tests)
+
+✅ Bearer security definition registration  
+✅ Security scheme type (Http)  
+✅ Scheme name ("bearer")  
+✅ Bearer format ("JWT")  
+✅ Parameter location (Header)  
+✅ Authorization header name  
+✅ Description presence and content  
+✅ Security requirement registration  
+✅ Bearer scheme reference  
+✅ Reference type validation  
+✅ Empty scopes for OAuth  
+✅ Example token in description  
+✅ Single Bearer definition  
+✅ Single security requirement  
+✅ Case-insensitive scheme matching  
+✅ JWT token format in description
 
 ## Running Tests
 

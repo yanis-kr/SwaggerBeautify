@@ -19,6 +19,7 @@ public static class SwaggerServiceExtensions
         services.AddSwaggerGen(c =>
         {
             ConfigureSwaggerGen(c);
+            AddSecurity(c);
             AddXmlComments(c);
             AddOperationFilters(c);
             AddSchemaFilters(c);
@@ -52,6 +53,36 @@ public static class SwaggerServiceExtensions
 
         // Use simple type names for schema IDs
         c.CustomSchemaIds(type => type.Name);
+    }
+
+    private static void AddSecurity(SwaggerGenOptions c)
+    {
+        // Add JWT Bearer authentication
+        c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token in the text input below. Example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'"
+        });
+
+        // Add security requirement globally
+        c.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                Array.Empty<string>()
+            }
+        });
     }
 
     private static void AddXmlComments(SwaggerGenOptions c)
