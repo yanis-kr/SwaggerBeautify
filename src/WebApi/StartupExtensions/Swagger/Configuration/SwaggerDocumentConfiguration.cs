@@ -6,9 +6,9 @@ namespace WebApi.StartupExtensions.Swagger.Configuration;
 /// <summary>
 /// Configures Swagger document metadata
 /// </summary>
-public class SwaggerDocumentConfiguration : ISwaggerConfiguration
+public static class SwaggerDocumentConfiguration
 {
-    public void Configure(SwaggerGenOptions options)
+    public static void Configure(SwaggerGenOptions options)
     {
         options.SwaggerDoc("v1", new OpenApiInfo
         {

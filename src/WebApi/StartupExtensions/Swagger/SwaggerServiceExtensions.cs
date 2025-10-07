@@ -15,20 +15,12 @@ public static class SwaggerServiceExtensions
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(options =>
         {
-            // Apply all configurations using the strategy pattern
-            var configurations = new List<ISwaggerConfiguration>
-            {
-                new SwaggerDocumentConfiguration(),
-                new SwaggerSecurityConfiguration(),
-                new SwaggerXmlCommentsConfiguration(),
-                new SwaggerFiltersConfiguration(),
-                new SwaggerTypeMappingsConfiguration()
-            };
-
-            foreach (var configuration in configurations)
-            {
-                configuration.Configure(options);
-            }
+            // Apply configurations in order
+            SwaggerDocumentConfiguration.Configure(options);
+            SwaggerSecurityConfiguration.Configure(options);
+            SwaggerXmlCommentsConfiguration.Configure(options);
+            SwaggerFiltersConfiguration.Configure(options);
+            SwaggerTypeMappingsConfiguration.Configure(options);
         });
 
         return services;

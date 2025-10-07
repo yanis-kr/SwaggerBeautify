@@ -5,9 +5,9 @@ namespace WebApi.StartupExtensions.Swagger.Configuration;
 /// <summary>
 /// Configures XML documentation comments for Swagger
 /// </summary>
-public class SwaggerXmlCommentsConfiguration : ISwaggerConfiguration
+public static class SwaggerXmlCommentsConfiguration
 {
-    public void Configure(SwaggerGenOptions options)
+    public static void Configure(SwaggerGenOptions options)
     {
         var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
         var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);

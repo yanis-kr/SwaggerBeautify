@@ -6,9 +6,9 @@ namespace WebApi.StartupExtensions.Swagger.Configuration;
 /// <summary>
 /// Configures Swagger security (JWT Bearer authentication)
 /// </summary>
-public class SwaggerSecurityConfiguration : ISwaggerConfiguration
+public static class SwaggerSecurityConfiguration
 {
-    public void Configure(SwaggerGenOptions options)
+    public static void Configure(SwaggerGenOptions options)
     {
         // Add JWT Bearer authentication
         options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme

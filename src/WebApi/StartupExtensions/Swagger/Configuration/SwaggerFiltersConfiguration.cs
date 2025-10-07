@@ -7,9 +7,9 @@ namespace WebApi.StartupExtensions.Swagger.Configuration;
 /// <summary>
 /// Configures Swagger operation, schema, and document filters
 /// </summary>
-public class SwaggerFiltersConfiguration : ISwaggerConfiguration
+public static class SwaggerFiltersConfiguration
 {
-    public void Configure(SwaggerGenOptions options)
+    public static void Configure(SwaggerGenOptions options)
     {
         // Operation filters
         options.OperationFilter<CorrelationIdOperationFilter>();

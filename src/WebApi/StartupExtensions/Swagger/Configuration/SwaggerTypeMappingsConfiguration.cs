@@ -6,9 +6,9 @@ namespace WebApi.StartupExtensions.Swagger.Configuration;
 /// <summary>
 /// Configures type mappings for consistent JSON schema generation
 /// </summary>
-public class SwaggerTypeMappingsConfiguration : ISwaggerConfiguration
+public static class SwaggerTypeMappingsConfiguration
 {
-    public void Configure(SwaggerGenOptions options)
+    public static void Configure(SwaggerGenOptions options)
     {
         options.MapType<DateTime>(() => new OpenApiSchema
         {
