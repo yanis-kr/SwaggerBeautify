@@ -13,6 +13,7 @@ public static class SwaggerFiltersConfiguration
     {
         // Operation filters
         options.OperationFilter<JsonOnlyOperationFilter>();
+        options.OperationFilter<CommonResponseHeadersFilter>();
 
         // Parameter filters
         options.ParameterFilter<SwaggerPropsParameterFilter>();
