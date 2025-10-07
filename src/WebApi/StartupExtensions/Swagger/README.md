@@ -8,6 +8,14 @@ This folder contains all Swagger/OpenAPI related configuration following SOLID p
 Swagger/
 ├── SwaggerServiceExtensions.cs       # builder.Services.AddSwaggerDocumentation()
 ├── SwaggerApplicationExtensions.cs   # app.UseSwaggerDocumentation()
+├── Configuration/                    # SOLID configuration classes
+│   ├── ISwaggerConfiguration.cs
+│   ├── SwaggerDocumentConfiguration.cs
+│   ├── SwaggerSecurityConfiguration.cs
+│   ├── SwaggerXmlCommentsConfiguration.cs
+│   ├── SwaggerFiltersConfiguration.cs
+│   ├── SwaggerTypeMappingsConfiguration.cs
+│   └── README.md
 ├── Filters/                          # IOperationFilter and ISchemaFilter implementations
 │   ├── CorrelationIdOperationFilter.cs
 │   ├── JsonOnlyOperationFilter.cs
@@ -37,19 +45,55 @@ app.UseSwaggerDocumentation();
 app.Run();
 ```
 
+## Architecture
+
+### SOLID Design Pattern
+
+The Swagger configuration uses the **Strategy Pattern** with modular configuration classes:
+
+**Interface:** `ISwaggerConfiguration` - Common contract for all configurations
+
+**Configuration Classes:** Each handles one specific aspect
+
+- `SwaggerDocumentConfiguration` - Document metadata (title, version, contact)
+- `SwaggerSecurityConfiguration` - JWT Bearer authentication
+- `SwaggerXmlCommentsConfiguration` - XML documentation inclusion
+- `SwaggerFiltersConfiguration` - Operation, schema, and document filter registration
+- `SwaggerTypeMappingsConfiguration` - Custom type mappings
+
+**Benefits:**
+
+- ✅ **Single Responsibility** - Each class has one reason to change
+- ✅ **Easy to Test** - Configurations can be tested independently
+- ✅ **Easy to Extend** - Add new configurations without modifying existing code
+- ✅ **Maintainable** - Clear separation of concerns
+
 ## Extension Classes
 
 ### SwaggerServiceExtensions
 
-**Purpose:** Configures Swagger generation services (used with `builder.Services`)
+**Purpose:** Orchestrates Swagger configuration (used with `builder.Services`)
 
-**Responsibilities:**
+**Implementation:**
 
-- Adds SwaggerGen services
-- Configures OpenAPI document metadata
-- Registers operation, schema, and document filters
-- Sets up type mappings for common types
-- Includes XML documentation comments
+```csharp
+services.AddSwaggerGen(options =>
+{
+    var configurations = new List<ISwaggerConfiguration>
+    {
+        new SwaggerDocumentConfiguration(),
+        new SwaggerSecurityConfiguration(),
+        new SwaggerXmlCommentsConfiguration(),
+        new SwaggerFiltersConfiguration(),
+        new SwaggerTypeMappingsConfiguration()
+    };
+
+    foreach (var configuration in configurations)
+    {
+        configuration.Configure(options);
+    }
+});
+```
 
 ### SwaggerApplicationExtensions
 
