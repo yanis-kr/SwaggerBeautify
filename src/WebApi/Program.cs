@@ -1,5 +1,6 @@
 using WebApi.Middleware;
 using WebApi.StartupExtensions;
+using WebApi.StartupExtensions.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,13 +8,13 @@ builder.Services
     .AddAppServices()
     .AddMediatRSetup()
     .AddApiVersioningSetup()
-    .AddSwaggerSetup();
+    .AddSwaggerDocumentation();
 
 var app = builder.Build();
 
 app.UseCorrelationId()
     .UseAppPipeline()
-    .UseSwaggerSetup();
+    .UseSwaggerDocumentation();
 
 app.MapControllers();
 app.Run();
