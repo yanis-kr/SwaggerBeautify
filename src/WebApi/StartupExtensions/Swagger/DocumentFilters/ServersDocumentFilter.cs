@@ -12,6 +12,7 @@ public class ServersDocumentFilter : IDocumentFilter
     {
         swaggerDoc.Servers = new List<OpenApiServer>
         {
+            new OpenApiServer { Url = "https://localhost:60983", Description = "Local Development" },
             new OpenApiServer { Url = "https://dev.local", Description = "Development Environment" },
             new OpenApiServer { Url = "https://qa.local", Description = "QA Environment" }
         };

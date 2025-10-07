@@ -37,7 +37,8 @@ public static class SwaggerApplicationExtensions
         c.RoutePrefix = "swagger";
 
         // Enhanced Swagger UI configuration
-        c.EnableValidator(); // Enable validator badge
+        c.EnableTryItOutByDefault();
+
     }
 
     #endregion
