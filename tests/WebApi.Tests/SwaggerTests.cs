@@ -1291,5 +1291,389 @@ public class SwaggerTests
     }
 
     #endregion
+
+    #region ProblemDetailsDocumentFilter Tests
+
+    public class ProblemDetailsDocumentFilterTests
+    {
+        private readonly ProblemDetailsDocumentFilter _sut;
+        private readonly OpenApiDocument _document;
+        private readonly DocumentFilterContext _context;
+
+        public ProblemDetailsDocumentFilterTests()
+        {
+            _sut = new ProblemDetailsDocumentFilter();
+            _document = new OpenApiDocument
+            {
+                Info = new OpenApiInfo { Title = "Test API", Version = "v1" },
+                Paths = new OpenApiPaths()
+            };
+            _context = CreateDocumentFilterContext();
+        }
+
+        [Fact]
+        public void Apply_ShouldAddProblemDetailsSchema()
+        {
+            // Act
+            _sut.Apply(_document, _context);
+
+            // Assert
+            Assert.NotNull(_document.Components);
+            Assert.NotNull(_document.Components.Schemas);
+            Assert.True(_document.Components.Schemas.ContainsKey("ProblemDetails"));
+        }
+
+        [Fact]
+        public void Apply_ProblemDetailsSchema_ShouldHaveCorrectType()
+        {
+            // Act
+            _sut.Apply(_document, _context);
+
+            // Assert
+            var schema = _document.Components.Schemas["ProblemDetails"];
+            Assert.Equal("object", schema.Type);
+            Assert.Contains("RFC 7807", schema.Description);
+        }
+
+        [Fact]
+        public void Apply_ProblemDetailsSchema_ShouldHaveRequiredProperties()
+        {
+            // Act
+            _sut.Apply(_document, _context);
+
+            // Assert
+            var schema = _document.Components.Schemas["ProblemDetails"];
+            Assert.True(schema.Properties.ContainsKey("type"));
+            Assert.True(schema.Properties.ContainsKey("title"));
+            Assert.True(schema.Properties.ContainsKey("status"));
+            Assert.True(schema.Properties.ContainsKey("detail"));
+            Assert.True(schema.Properties.ContainsKey("instance"));
+        }
+
+        [Fact]
+        public void Apply_ProblemDetailsSchema_ShouldHaveErrorsProperty()
+        {
+            // Act
+            _sut.Apply(_document, _context);
+
+            // Assert
+            var schema = _document.Components.Schemas["ProblemDetails"];
+            Assert.True(schema.Properties.ContainsKey("errors"));
+            var errorsProperty = schema.Properties["errors"];
+            Assert.Equal("object", errorsProperty.Type);
+            Assert.NotNull(errorsProperty.AdditionalProperties);
+        }
+
+        [Fact]
+        public void Apply_ProblemDetailsSchema_ShouldHaveTraceIdProperty()
+        {
+            // Act
+            _sut.Apply(_document, _context);
+
+            // Assert
+            var schema = _document.Components.Schemas["ProblemDetails"];
+            Assert.True(schema.Properties.ContainsKey("traceId"));
+            Assert.Equal("string", schema.Properties["traceId"].Type);
+        }
+
+        [Fact]
+        public void Apply_ProblemDetailsSchema_ShouldHaveExamples()
+        {
+            // Act
+            _sut.Apply(_document, _context);
+
+            // Assert
+            var schema = _document.Components.Schemas["ProblemDetails"];
+            Assert.NotNull(schema.Example);
+            Assert.NotNull(schema.Properties["type"].Example);
+            Assert.NotNull(schema.Properties["title"].Example);
+            Assert.NotNull(schema.Properties["status"].Example);
+        }
+
+        [Fact]
+        public void Apply_StatusProperty_ShouldBeInt32()
+        {
+            // Act
+            _sut.Apply(_document, _context);
+
+            // Assert
+            var schema = _document.Components.Schemas["ProblemDetails"];
+            var statusProperty = schema.Properties["status"];
+            Assert.Equal("integer", statusProperty.Type);
+            Assert.Equal("int32", statusProperty.Format);
+        }
+
+        [Fact]
+        public void Apply_ErrorsProperty_ShouldBeArrayOfStrings()
+        {
+            // Act
+            _sut.Apply(_document, _context);
+
+            // Assert
+            var schema = _document.Components.Schemas["ProblemDetails"];
+            var errorsProperty = schema.Properties["errors"];
+            Assert.Equal("array", errorsProperty.AdditionalProperties.Type);
+            Assert.Equal("string", errorsProperty.AdditionalProperties.Items.Type);
+        }
+
+        [Fact]
+        public void Apply_WhenProblemDetailsAlreadyExists_ShouldNotOverwrite()
+        {
+            // Arrange
+            var existingSchema = new OpenApiSchema
+            {
+                Type = "object",
+                Description = "Custom ProblemDetails"
+            };
+            _document.Components = new OpenApiComponents
+            {
+                Schemas = new Dictionary<string, OpenApiSchema>
+                {
+                    ["ProblemDetails"] = existingSchema
+                }
+            };
+
+            // Act
+            _sut.Apply(_document, _context);
+
+            // Assert
+            Assert.Same(existingSchema, _document.Components.Schemas["ProblemDetails"]);
+            Assert.Equal("Custom ProblemDetails", _document.Components.Schemas["ProblemDetails"].Description);
+        }
+
+        [Fact]
+        public void Apply_WhenComponentsIsNull_ShouldInitializeComponents()
+        {
+            // Arrange
+            _document.Components = null;
+
+            // Act
+            _sut.Apply(_document, _context);
+
+            // Assert
+            Assert.NotNull(_document.Components);
+            Assert.NotNull(_document.Components.Schemas);
+        }
+
+        [Fact]
+        public void Apply_AllProperties_ShouldBeNullable()
+        {
+            // Act
+            _sut.Apply(_document, _context);
+
+            // Assert
+            var schema = _document.Components.Schemas["ProblemDetails"];
+            Assert.True(schema.Properties["type"].Nullable);
+            Assert.True(schema.Properties["title"].Nullable);
+            Assert.True(schema.Properties["status"].Nullable);
+            Assert.True(schema.Properties["detail"].Nullable);
+            Assert.True(schema.Properties["instance"].Nullable);
+        }
+
+        private static DocumentFilterContext CreateDocumentFilterContext()
+        {
+            var apiDescriptions = new List<ApiDescription>();
+            var schemaRepository = new SchemaRepository();
+            
+            return new DocumentFilterContext(
+                apiDescriptions,
+                new TestSchemaGenerator(),
+                schemaRepository);
+        }
+    }
+
+    #endregion
+
+    #region ProblemDetailsOperationFilter Tests
+
+    public class ProblemDetailsOperationFilterTests
+    {
+        private readonly ProblemDetailsOperationFilter _sut;
+        private readonly OpenApiOperation _operation;
+        private readonly OperationFilterContext _context;
+
+        public ProblemDetailsOperationFilterTests()
+        {
+            _sut = new ProblemDetailsOperationFilter();
+            _operation = new OpenApiOperation();
+            _context = CreateOperationFilterContext();
+        }
+
+        [Fact]
+        public void Apply_ShouldAddProblemDetailsTo4xxResponses()
+        {
+            // Arrange
+            _operation.Responses = new OpenApiResponses
+            {
+                ["200"] = new OpenApiResponse { Description = "Success" },
+                ["400"] = new OpenApiResponse { Description = "Bad Request" },
+                ["404"] = new OpenApiResponse { Description = "Not Found" }
+            };
+
+            // Act
+            _sut.Apply(_operation, _context);
+
+            // Assert
+            Assert.True(_operation.Responses["400"].Content.ContainsKey("application/json"));
+            Assert.NotNull(_operation.Responses["400"].Content["application/json"].Schema.Reference);
+            Assert.Equal("ProblemDetails", _operation.Responses["400"].Content["application/json"].Schema.Reference.Id);
+            
+            Assert.True(_operation.Responses["404"].Content.ContainsKey("application/json"));
+            Assert.Equal("ProblemDetails", _operation.Responses["404"].Content["application/json"].Schema.Reference.Id);
+        }
+
+        [Fact]
+        public void Apply_ShouldAddProblemDetailsTo5xxResponses()
+        {
+            // Arrange
+            _operation.Responses = new OpenApiResponses
+            {
+                ["200"] = new OpenApiResponse { Description = "Success" },
+                ["500"] = new OpenApiResponse { Description = "Internal Server Error" }
+            };
+
+            // Act
+            _sut.Apply(_operation, _context);
+
+            // Assert
+            Assert.True(_operation.Responses["500"].Content.ContainsKey("application/json"));
+            Assert.Equal("ProblemDetails", _operation.Responses["500"].Content["application/json"].Schema.Reference.Id);
+        }
+
+        [Fact]
+        public void Apply_ShouldNotModify2xxResponses()
+        {
+            // Arrange
+            _operation.Responses = new OpenApiResponses
+            {
+                ["200"] = new OpenApiResponse { Description = "Success" },
+                ["201"] = new OpenApiResponse { Description = "Created" }
+            };
+
+            // Act
+            _sut.Apply(_operation, _context);
+
+            // Assert
+            Assert.Empty(_operation.Responses["200"].Content ?? new Dictionary<string, OpenApiMediaType>());
+            Assert.Empty(_operation.Responses["201"].Content ?? new Dictionary<string, OpenApiMediaType>());
+        }
+
+        [Fact]
+        public void Apply_ShouldNotModify3xxResponses()
+        {
+            // Arrange
+            _operation.Responses = new OpenApiResponses
+            {
+                ["301"] = new OpenApiResponse { Description = "Moved Permanently" },
+                ["302"] = new OpenApiResponse { Description = "Found" }
+            };
+
+            // Act
+            _sut.Apply(_operation, _context);
+
+            // Assert
+            Assert.Empty(_operation.Responses["301"].Content ?? new Dictionary<string, OpenApiMediaType>());
+            Assert.Empty(_operation.Responses["302"].Content ?? new Dictionary<string, OpenApiMediaType>());
+        }
+
+        [Fact]
+        public void Apply_WhenErrorResponseHasExistingContent_ShouldNotOverwrite()
+        {
+            // Arrange
+            var existingContent = new Dictionary<string, OpenApiMediaType>
+            {
+                ["application/json"] = new OpenApiMediaType
+                {
+                    Schema = new OpenApiSchema { Type = "object" }
+                }
+            };
+
+            _operation.Responses = new OpenApiResponses
+            {
+                ["400"] = new OpenApiResponse 
+                { 
+                    Description = "Bad Request",
+                    Content = existingContent
+                }
+            };
+
+            // Act
+            _sut.Apply(_operation, _context);
+
+            // Assert
+            Assert.Same(existingContent, _operation.Responses["400"].Content);
+        }
+
+        [Fact]
+        public void Apply_WhenResponsesIsNull_ShouldInitializeResponses()
+        {
+            // Arrange
+            _operation.Responses = null;
+
+            // Act
+            _sut.Apply(_operation, _context);
+
+            // Assert
+            Assert.NotNull(_operation.Responses);
+        }
+
+        [Fact]
+        public void Apply_SchemaReference_ShouldHaveCorrectType()
+        {
+            // Arrange
+            _operation.Responses = new OpenApiResponses
+            {
+                ["400"] = new OpenApiResponse { Description = "Bad Request" }
+            };
+
+            // Act
+            _sut.Apply(_operation, _context);
+
+            // Assert
+            var reference = _operation.Responses["400"].Content["application/json"].Schema.Reference;
+            Assert.Equal(ReferenceType.Schema, reference.Type);
+            Assert.Equal("ProblemDetails", reference.Id);
+        }
+
+        [Theory]
+        [InlineData("400")]
+        [InlineData("401")]
+        [InlineData("403")]
+        [InlineData("404")]
+        [InlineData("422")]
+        [InlineData("500")]
+        [InlineData("502")]
+        [InlineData("503")]
+        public void Apply_ShouldHandleVariousErrorCodes(string statusCode)
+        {
+            // Arrange
+            _operation.Responses = new OpenApiResponses
+            {
+                [statusCode] = new OpenApiResponse { Description = "Error" }
+            };
+
+            // Act
+            _sut.Apply(_operation, _context);
+
+            // Assert
+            Assert.True(_operation.Responses[statusCode].Content.ContainsKey("application/json"));
+            Assert.Equal("ProblemDetails", _operation.Responses[statusCode].Content["application/json"].Schema.Reference.Id);
+        }
+
+        private static OperationFilterContext CreateOperationFilterContext()
+        {
+            var apiDescription = new ApiDescription();
+            var schemaRepository = new SchemaRepository();
+            var methodInfo = typeof(ProblemDetailsOperationFilterTests).GetMethod(nameof(CreateOperationFilterContext));
+            
+            return new OperationFilterContext(
+                apiDescription,
+                new TestSchemaGenerator(),
+                schemaRepository,
+                methodInfo!);
+        }
+    }
+
+    #endregion
 }
 

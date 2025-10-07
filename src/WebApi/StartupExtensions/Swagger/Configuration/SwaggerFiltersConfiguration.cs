@@ -14,6 +14,7 @@ public static class SwaggerFiltersConfiguration
         // Operation filters
         options.OperationFilter<JsonOnlyOperationFilter>();
         options.OperationFilter<CommonResponseHeadersFilter>();
+        options.OperationFilter<ProblemDetailsOperationFilter>();
 
         // Parameter filters
         options.ParameterFilter<SwaggerPropsParameterFilter>();
@@ -24,6 +25,7 @@ public static class SwaggerFiltersConfiguration
 
         // Document filters
         options.DocumentFilter<ServersDocumentFilter>();
+        options.DocumentFilter<ProblemDetailsDocumentFilter>();
     }
 }
 
