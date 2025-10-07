@@ -1,4 +1,4 @@
-using MediatR;
+using WebApi.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using WebApi.Features.Authors.Commands;

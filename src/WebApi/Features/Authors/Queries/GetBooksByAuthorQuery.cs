@@ -1,4 +1,4 @@
-using MediatR;
+using WebApi.Infrastructure.Mediator;
 using WebApi.Features.Books.Models;
 
 namespace WebApi.Features.Authors.Queries;

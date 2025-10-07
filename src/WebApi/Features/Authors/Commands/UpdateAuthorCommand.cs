@@ -1,4 +1,4 @@
-using MediatR;
+using WebApi.Infrastructure.Mediator;
 
 namespace WebApi.Features.Authors.Commands;
 

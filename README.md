@@ -84,6 +84,14 @@ dotnet test
 
 ## Features
 
+### 🚀 Custom Mediator Implementation
+
+- ✅ **Zero Dependencies** - No MediatR package required
+- ✅ **Lightweight** - ~150 lines of simple code
+- ✅ **Auto-Registration** - Handlers discovered automatically
+- ✅ **Type-Safe** - Compile-time request/response validation
+- ✅ **Fully Tested** - 24 unit tests covering all scenarios
+
 ### 🎯 Swagger/OpenAPI Configuration
 
 - ✅ **SOLID Architecture** - Modular, single-responsibility classes
@@ -98,7 +106,7 @@ dotnet test
 
 ### 🧪 Comprehensive Testing
 
-- **68 Unit Tests** - Full coverage of Swagger configuration
+- **86 Unit Tests** - Full coverage of Swagger and Mediator implementations
 - **Test Coverage Reporting** - HTML reports with line/branch coverage
 - **FluentAssertions** - Readable, expressive test assertions
 - **NSubstitute** - Clean mocking for dependencies
@@ -171,6 +179,7 @@ SwaggerTypeMappingsConfiguration.Configure(options);
 ## Documentation
 
 - **[COVERAGE.md](COVERAGE.md)** - Test coverage guide
+- **[src/WebApi/Infrastructure/Mediator/README.md](src/WebApi/Infrastructure/Mediator/README.md)** - Custom mediator implementation
 - **[src/WebApi/StartupExtensions/Swagger/README.md](src/WebApi/StartupExtensions/Swagger/README.md)** - Swagger architecture
 - **[src/WebApi/StartupExtensions/Swagger/Configuration/README.md](src/WebApi/StartupExtensions/Swagger/Configuration/README.md)** - Configuration details
 - **[tests/WebApi.Tests/README.md](tests/WebApi.Tests/README.md)** - Test suite documentation
@@ -181,7 +190,7 @@ SwaggerTypeMappingsConfiguration.Configure(options);
 - **.NET 9.0** - Test runtime
 - **ASP.NET Core** - Web framework
 - **Swashbuckle.AspNetCore** - Swagger/OpenAPI generation
-- **MediatR** - CQRS pattern implementation
+- **Custom Mediator** - Lightweight CQRS implementation (no dependencies!)
 - **xUnit** - Testing framework
 - **FluentAssertions** - Assertion library
 - **NSubstitute** - Mocking framework

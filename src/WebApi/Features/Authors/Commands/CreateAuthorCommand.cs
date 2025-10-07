@@ -1,4 +1,4 @@
-using MediatR;
+using WebApi.Infrastructure.Mediator;
 using WebApi.Attributes;
 using WebApi.Features.Authors.Models;
 

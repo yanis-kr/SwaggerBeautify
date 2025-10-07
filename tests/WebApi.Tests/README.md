@@ -4,7 +4,7 @@ Comprehensive xUnit test suite for all Swagger/OpenAPI configuration code.
 
 ## Test Statistics
 
-- **Total Tests**: 68
+- **Total Tests**: 86
 - **Test Status**: ✅ All Passing
 - **Test Framework**: xUnit
 - **Assertion Library**: FluentAssertions
@@ -21,10 +21,14 @@ WebApi.Tests/
 │   └── SwaggerPropsSchemaFilterTests.cs             # 22 tests
 ├── DocumentFilters/                                  # Document Filter Tests
 │   └── ServersDocumentFilterTests.cs                # 7 tests
-└── Extensions/                                       # Extension Method Tests
-    ├── SwaggerServiceExtensionsTests.cs             # 4 tests
-    ├── SwaggerApplicationExtensionsTests.cs         # 2 tests
-    └── SwaggerSecurityTests.cs                      # 17 tests
+├── Extensions/                                       # Extension Method Tests
+│   ├── SwaggerServiceExtensionsTests.cs             # 4 tests
+│   ├── SwaggerApplicationExtensionsTests.cs         # 2 tests
+│   └── SwaggerSecurityTests.cs                      # 17 tests
+└── Infrastructure/                                   # Infrastructure Tests
+    ├── MediatorTests.cs                             # 12 tests
+    ├── UnitTests.cs                                 # 6 tests
+    └── MediatorExtensionsTests.cs                   # 6 tests
 ```
 
 ## Coverage by Component
@@ -115,6 +119,32 @@ WebApi.Tests/
 ✅ Single security requirement  
 ✅ Case-insensitive scheme matching  
 ✅ JWT token format in description
+
+### 9. Custom Mediator Implementation (12 tests)
+
+✅ Request/response handling  
+✅ Handler resolution from DI  
+✅ Null request validation  
+✅ Unit return type support  
+✅ Cancellation token passing  
+✅ Multiple handler resolution  
+✅ Missing handler error handling
+
+### 10. Unit Type (6 tests)
+
+✅ Default value behavior  
+✅ Equality comparison  
+✅ Hash code consistency  
+✅ String representation  
+✅ Object equality
+
+### 11. Mediator Extensions (6 tests)
+
+✅ Mediator registration  
+✅ Service collection fluent API  
+✅ Auto-registration of handlers  
+✅ Scoped lifetime  
+✅ Handler lifetime configuration
 
 ## Running Tests
 
